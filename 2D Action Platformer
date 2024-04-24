@@ -1,0 +1,1491 @@
+import pygame
+import os
+pygame.font.init()
+pygame.mixer.init()
+
+## Screen set up
+WIDTH, HEIGHT = 1000, 500
+WIN = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Thank You For Playing!")
+Ground_Height = 435 ## The standard height of the ground, note that when the ground is rendered, its actual height is 435, and the characters bottom coordinate is 440.
+
+## Ledges and platforms
+Grass_Ledge_Width = 80
+Grass_Ledge_Height = 10
+Grass_Ledge_X_Position = 700
+Grass_Ledge_Y_Position = 360
+Grass_Ledge2_X_Position = 350
+Grass_Ledge2_Y_Position = 290
+Grass_Ledge3_X_Position = 570
+Grass_Ledge3_Y_Position = 280
+Grass_Ledge4_X_Position = 720
+Grass_Ledge4_Y_Position = 200
+Grass_Ledge5_X_Position = 200
+Grass_Ledge5_Y_Position = 200
+Grass_Ledge6_X_Position = 0
+Grass_Ledge6_Y_Position = 180
+Rock_Ledge_Vel = 2 ## The velocity of the first moving platform, the second moving platform will move double this velocity
+Rock_Ledge_Width = 40
+Rock_Ledge_Height = 10
+Rock_Ledge_X_Position = 200
+Rock_Ledge_Y_Position = 380
+Rock_Ledge2_X_Position = 400
+Rock_Ledge2_Y_Position = 400
+Rock_Ledge3_X_Position = 500
+Rock_Ledge3_Y_Position = 360
+Rock_Ledge4_X_Position = 860
+Rock_Ledge4_Y_Position = 320
+Rock_Ledge5_X_Position = 820
+Rock_Ledge5_Y_Position = 230
+Rock_Ledge6_X_Position = 200
+Rock_Ledge6_Y_Position = 200
+Rock_Ledge7_X_Position = 100
+Rock_Ledge7_Y_Position = 120
+
+## Character Parameters
+Protagonist_Width = 35 ## Width of character
+Protagonist_Height = 40 ## Height of character
+Protagonist_Rectangle_Width = 15
+Character_Vel = 4 ## Speed of character
+Jump_Vel = 5 ## Jump speed of character
+X_Position = 200 ## Starting X position for character
+Y_Position = 400 ## Starting Y position for character
+Regular_Jump_Height = 100 ## Max height of a jump
+Sword_Width = 20 ## Width of sword
+Sword_Height = 25 ## Height of sword
+Original_Sword_Rotation = 45 ## degrees of rotation of sword when used to attack
+Base_Protagonist_Health = 3
+Health_Font = pygame.font.SysFont('comicsans', 20)
+Game_Over_Font = pygame.font.SysFont('roboto', 100)
+Beat_Game_Font = pygame.font.SysFont('roboto', 100)
+Level1_Track = pygame.mixer.Sound(os.path.join("Downloads", "My Game Assets", "Battle-Conflict.mp3"))
+Level2_Track = pygame.mixer.Sound(os.path.join("Downloads", "My Game Assets", "SneakyAction.wav"))
+Level3_Track = pygame.mixer.Sound(os.path.join("Downloads", "My Game Assets", "01 Riding dragons.wav"))
+Level4_Track = pygame.mixer.Sound(os.path.join("Downloads", "My Game Assets", "Battle-Furious.mp3"))
+Heal_Sound = pygame.mixer.Sound(os.path.join("Downloads", "My Game Assets", "02_Heal_02.wav"))
+Damage_Sound = pygame.mixer.Sound(os.path.join("Downloads", "My Game Assets", "Boss hit 1.wav"))
+Game_Over_Sound = pygame.mixer.Sound(os.path.join("Downloads", "My Game Assets", "negative_beeps-6008.mp3"))
+Game_Win_Sound = pygame.mixer.Sound(os.path.join("Downloads", "My Game Assets", "brass-fanfare-reverberated-146263.mp3"))
+Character_Fallback = 30 ## The amount the character is pushed back when takes damage
+Ground_Sprite_Adjustment = 5 ## The character's rectangle is 5 Y-coordinates larger than what is shown on screen. To make the character appear to be touching the grass, sprite needs to be moved down 5 units
+Sword_Frame_Counter = 5 ## Amount of frames in between each animation of sword swing before it can be used again
+Invincibility_Frames = 5 ## Frames of invincibility after getting hit
+
+## Enemy Parameters
+Slime_Width = 35
+Slime_Height = 30
+Slime_Vel = 1
+Slime_Base_Health = 3
+Bird_Width = 40
+Bird_Height = 25
+Bird_Vel = 5
+Bird_Facing_Left = True ## Bool to check whether the bird is facing left
+Base_Projectile_Count = 1
+Projectile_Vel = 11
+Projectile_Width = 25
+Projectile_Height = 25
+Dog_X_Position = 800
+Dog_Y_Position = 20
+Dog_Width = 30
+Dog_Height = 30
+Dog_Vel = 10 ## The speed of the dog
+Base_Dog_Health = 3
+Ghost_Height = 40
+Ghost_Width = 30
+Ghost1_X_Position = 970
+Ghost1_Y_Position = 330
+Base_Ghost_Health = 5
+Ghost_Vel = 1
+Ghost2_X_Position = 0
+Ghost2_Y_Position = 330
+Ghost_Invisibility_Frames = 50
+Minotaur_Width = 50
+Minotaur_Height = 50
+Base_Minotaur_Health = 8
+Minotaur_Attack_Frames = 50 ## Amount of frames in between each minotaur attack
+Minotaur_Animation_Frames = 5 ## Amount of frames each minotaur attack lasts
+Minotaur_X_Position = 800
+Minotaur_Y_Position = 0
+Minotaur_Vel = 1
+Boss_Width = 60
+Boss_Height = 60
+Boss_X_Position = 900
+Boss_Y_Position = 375
+Enemy_Invincibility_Frames = 5 ## Number of frames enemies are invulnerable after taking damage
+Base_Final_Boss_Health = 24
+First_Attack_Frames = 1000 ## Number of frames the first boss attack will last
+Boss_Disappearing_Frames = 50
+Fireball_Width = 30
+Fireball_Height = 30
+Fireball_Vel = 5
+Fireball_Falling_Vel = 9
+Boss_Flying_Vel = 10
+
+## Other object parameters
+Heart_Width = 40
+Heart_Height = 40
+Heart_X_Position = 17
+Heart_Y_Position = 155
+Arrow_Sign_Width = 25
+Arrow_Sign_Height = 25
+Arrow_Sign_X_Position = 950
+Arrow_Sign_Y_Position = 175
+Lava_Width = 800
+Lava_Height = 40
+Lava_X_Position = 100
+Lava_Y_Position = Ground_Height + 10 ## Need lava to be just under ground level
+High_Rock_Path_Width = 730 ## Representing the high path with the dog
+High_Rock_Path_Height = 30
+High_Rock_Path_X_Position = 200
+High_Rock_Path_Y_Position = 50
+Wall_Width = 30 ## Represents the slim wall at the edge of the lava
+Wall_Height = 405
+Wall_X_Position = 900
+Wall_Y_Position = 80
+
+## Making our own events
+Rising_True = pygame.USEREVENT + 1 ## The character is rising in midair
+Rising_False = pygame.USEREVENT + 2 ## The character is not rising in midair (falling or on the ground)
+Grounded_False = pygame.USEREVENT + 3 ## The character is not grounded
+Grounded_True = pygame.USEREVENT + 4 ## The character is grounded
+Sword_Swing_Down = pygame.USEREVENT + 5 ## The character is swinging the sword down
+Sword_Swing_Up = pygame.USEREVENT + 6 ## After the down swing, the character is now returning the sword to its original place
+Swing_True = pygame.USEREVENT + 7 ## The character is in the process of swinging his sword
+Swing_False = pygame.USEREVENT + 8 ## The character is not swinging his sword
+Slime1_Lose_Health = pygame.USEREVENT + 9 ## The slime has been hit
+Protagonist_Lose_Health = pygame.USEREVENT + 10 ## The character loses health
+Switch_Bird_Direction = pygame.USEREVENT + 11 ## Switches the birds direction
+Change_Projectile_Count = pygame.USEREVENT + 12 ## After the bird shoots a projectile, the count goes down from 1 to 0
+Protagonist_Change_Direction = pygame.USEREVENT + 13 ## Changes the direction the protagonist is facing
+Update_Previous_Ground_Level = pygame.USEREVENT + 14 ## Updates the ground level of the most recent surface the protagonist touched
+Slime2_Lose_Health = pygame.USEREVENT + 15
+Slime3_Lose_Health = pygame.USEREVENT + 16
+Collect_Heart = pygame.USEREVENT + 17 ## Character collects the heart
+Rock_Ledge3_Change_Direction = pygame.USEREVENT + 18 ## The first moving rock ledge changes direction
+Reset_Frame_Counter = pygame.USEREVENT + 19 ## After the sword is swung, the counter goes back to 0
+Increase_Frame_Counter = pygame.USEREVENT + 20 ## After each frame that the sword is not swung, 1 is added to the counter
+Rock_Ledge6_Change_Direction = pygame.USEREVENT + 21 ## The second moving rock ledge changes direction
+Dog_Lose_Health = pygame.USEREVENT + 22 ## The dog loses health
+Dog_Moving_Left = pygame.USEREVENT + 23 ## Once the character becomes in sight, the dog starts moving left
+Dog_Idle = pygame.USEREVENT + 24 ## Once the character is no longer in sight, the dog goes back to his idle stance
+Ghost1_Lose_Health = pygame.USEREVENT + 25 ## Ghost1 Loses health
+Ghost1_Change_Vertical_Direction = pygame.USEREVENT + 26 ## Ghost1 changes between moving up and down
+Ghost2_Change_Vertical_Direction = pygame.USEREVENT + 27 ## Ghost 2 changes between moving up and down
+Ghost2_Lose_Health = pygame.USEREVENT + 28 ## Ghost 2 loses health
+Ghost1_Change_Horizontal_Direction = pygame.USEREVENT + 29 ## Ghost1 changes direction
+Ghost2_Change_Horizontal_Direction = pygame.USEREVENT + 30 ## Ghost2 changes direction
+Update_Ghost_Frame_Counter = pygame.USEREVENT + 31 ## Adds to the frame counter for how long the ghost has been visible/invisible
+Reset_Ghost_Frame_Counter = pygame.USEREVENT + 32 ## Resets the counter back to 0
+Holding_Space_Change = pygame.USEREVENT + 33 ## Updates if the player is holding space or not
+Change_Slime1_Direction = pygame.USEREVENT + 34 ## The slime changes direction
+Change_Slime2_Direction = pygame.USEREVENT + 35
+Change_Slime3_Direction = pygame.USEREVENT + 36
+Change_Slime4_Direction = pygame.USEREVENT + 37
+Slime4_Lose_Health = pygame.USEREVENT + 38
+Update_Minotaur_Attacking = pygame.USEREVENT + 39 ## Updates the bool if the minotaur starts attacking
+Update_Minotaur_Pic = pygame.USEREVENT + 40 ## Updates the minotaur pic to face the right direction or while attacking
+Increase_Minotaur_Attack_Frame_Counter = pygame.USEREVENT + 41 ## Adds to the counter to determine when the minotuar should attack
+Minotaur_Moving_Left = pygame.USEREVENT + 42 ## Updates the minotaur to face left
+Minotaur_Moving_Right = pygame.USEREVENT + 43 ## Updates the minotaur to face right
+Minotaur_Lose_Health = pygame.USEREVENT + 44
+Player_Holding_Shift = pygame.USEREVENT + 45 ## The player is holding the shift button, the sword will not swing again unless the button is pressed again
+Player_Not_Holding_Shift = pygame.USEREVENT + 46 ## The player is not holding shift
+Increase_Invincibility_Frames_Counter = pygame.USEREVENT + 47
+Reset_Invincibility_Frames_Counter = pygame.USEREVENT + 48
+Update_Enemy_Invincibility_Frames_Counter = pygame.USEREVENT + 49
+Reset_Enemy_Invincibility_Frames_Counter = pygame.USEREVENT + 50
+Boss_Face_Left = pygame.USEREVENT + 51
+Boss_Face_Right = pygame.USEREVENT + 52
+Boss_Lose_Health = pygame.USEREVENT + 53
+Increase_Final_Boss_Frame_Counter = pygame.USEREVENT + 54
+Reset_Final_Boss_Frame_Counter = pygame.USEREVENT + 55
+Change_Boss_Disappearing = pygame.USEREVENT + 56
+Change_Boss_Attack1 = pygame.USEREVENT + 57
+Change_Boss_Attack2 = pygame.USEREVENT + 58
+Update_Boss_Attack_Picture = pygame.USEREVENT + 59
+Change_Boss_Attack2_Part1 = pygame.USEREVENT + 60
+Change_Boss_Attack3 = pygame.USEREVENT + 61
+Change_Boss_Attack3_Part1 = pygame.USEREVENT + 62
+
+
+## Colours
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+YELLOW = (255, 255, 0)
+RED = (255, 0, 0)
+
+## Downloaded images
+Red_Spaceship = pygame.image.load(
+    os.path.join("Downloads", "Assets", "spaceship_red.png"))
+Grass = pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "grass.png")), (WIDTH, HEIGHT - Protagonist_Height - Y_Position + 5)) ## Protagonist sprite not hitting the grass so 5 is added to the Y of the grass
+Sword_image = pygame.transform.scale(pygame.transform.rotate(
+    pygame.image.load(os.path.join("Downloads", "My Game Assets", "File.png")), 0), (Sword_Width, Sword_Height))
+Protagonist_image = pygame.transform.scale(pygame.image.load(
+    os.path.join("Downloads", "My Game Assets", "Removed Background.png")), (Protagonist_Width, Protagonist_Height))
+Slime_image = pygame.transform.flip(pygame.transform.scale(pygame.image.load(os.path.join
+("Downloads", "My Game Assets", "Slime Enemy.png")), (Slime_Width, Slime_Height)), True, False)
+Bird_image = pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "BirdSpriteBig.png")), (Bird_Width, Bird_Height))
+Bomb_image = pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "bomb.png")), (Projectile_Width, Projectile_Height))
+Heart_image = pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "Item 3-1.png.png")), (Heart_Width, Heart_Height))
+Heart_Health_image = pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "Item 3-1.png.png")), (70, 70))
+Grassy_Background = pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "Grassy Background.png")), (1000, 500))
+Arrow_image = pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "tile_0088.png")), (Arrow_Sign_Width, Arrow_Sign_Height))
+Rotated_Arrow_image = pygame.transform.rotate(pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "tile_0088.png")), (Arrow_Sign_Width, Arrow_Sign_Height)), 270)
+Ground_image = pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "tile_0025.png")), (WIDTH, HEIGHT - Protagonist_Height - Y_Position + Ground_Sprite_Adjustment))
+Grass_Ledge_image = pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "tile_0002.png")), (Grass_Ledge_Width, Grass_Ledge_Height))
+Long_Grass_Ledge_image = pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "tile_0002.png")), (WIDTH - Grass_Ledge6_X_Position, Grass_Ledge_Height))
+Rock_Ledge_image = pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "tile_0026.png")), (Rock_Ledge_Width, Rock_Ledge_Height))
+lava_image = pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "burninglava1.png")), (Lava_Width, Lava_Height))
+Rock_image = pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "lavaonland7.png" )), (100, HEIGHT - Ground_Height))
+Rock_image2 = pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "lavaonland7.png" )), (High_Rock_Path_Width, High_Rock_Path_Height))
+Rock_image3 = pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "lavaonland7.png" )), (Lava_Width+Wall_Width, 60))
+Wall_image = pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "lavaonland7.png" )), (Wall_Width, Wall_Height))
+Cave_Background_image = pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "awesomeCavePixelArt.png")), (WIDTH, HEIGHT))
+Idle_Dog_image = pygame.transform.flip(pygame.image.load(os.path.join("Downloads", "My Game Assets", "Idle.png" )), True, False)
+Walking_Dog_image = pygame.image.load(os.path.join("Downloads", "My Game Assets", "Walk.png" ))
+Dungeon_Background_image = pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "OldDungeon.png")), (WIDTH, HEIGHT))
+Ghost_image = pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "sprite_0.png")), (Ghost_Height, Ghost_Width))
+Dungeon_Floor_image = pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "OldDungeon320X180.png")), (WIDTH, HEIGHT - Protagonist_Height - Y_Position + Ground_Sprite_Adjustment))
+Minotaur_image = pygame.transform.flip(pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "Minotaur Idle Standing Sprite.png")), (Minotaur_Width, Minotaur_Height)), True, False)
+Minotaur_Attacking_image = pygame.transform.flip(pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "Minotaur Attacking.png")), (Minotaur_Width, Minotaur_Height)), True, False)
+Final_Boss_Background_image = pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "connor-wakes-conwak-sotn.jpg")), (WIDTH, HEIGHT))
+Castle_Floor_image = pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "Castle Floor.jpeg")), (WIDTH, HEIGHT - Protagonist_Height - Y_Position + Ground_Sprite_Adjustment))
+Charlotte_image = pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "IMG_0881.jpeg")), (Boss_Width, Boss_Height))
+Boss_Idle_image = pygame.transform.flip(pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "Final Boss Idle.png")), (Boss_Width, Boss_Height)), True, False)
+Boss_Disappearing_image = pygame.transform.flip(pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "Final Boss Disappearing.png")), (Boss_Width, Boss_Height)), True, False)
+Boss_Attack2_image = pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "Boss Holding Up Stick.png")), (Boss_Width + 30, Boss_Height + 30)) ## The boss dimensions are made bigger here because of the height of this image being larger
+Fireball_image = pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "FB002.png")), (Fireball_Width, Fireball_Height))
+Boss_Flying_Sideways_image = pygame.transform.rotate(pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "Boss Flying.png")), (Boss_Width, Boss_Height)), 330)
+Boss_Flying_Up_image = pygame.transform.rotate(pygame.transform.scale(pygame.image.load(os.path.join("Downloads", "My Game Assets", "Boss Flying.png")), (Boss_Width, Boss_Height)), 30)
+
+## This function draws things on to the screen
+def draw_window(character, sword, Sword_pic, slime1, slime1_health, slime2, slime2_health, slime3, slime3_health, slime4, slime4_health, protagonist_health, bird, Bird_pic, projectile, Protagonist_Pic, heart, heart_collected, level, rock_ledge3, rock_ledge6, dog, Dog_pic, dog_health, ghost1, ghost1_health, ghost2, ghost2_health, Ghost1_Pic, Ghost2_Pic, ghost_frame_counter, phase1_completed, Slime1_Pic, Slime2_Pic, Slime3_Pic, Slime4_Pic, minotaur, phase2_completed, Minotaur_Pic, minotaur_health, arrow_sign, phase4_completed, final_boss, Boss_Pic, boss_health, fireball1, fireball2, fireball3, fireball4, fireball5, fireball6, fireball7, fireball8, fireball9, fireball10, Fireball_Pic, Boss_Disappearing, Boss_Attack2, Boss_Attack3):
+    if level == 1:
+        WIN.blit(Grassy_Background, (0, 0))
+        WIN.blit(Ground_image, (0, Ground_Height)) ## The real Y-coordinate of the grass is 435
+        WIN.blit(Grass_Ledge_image, (Grass_Ledge_X_Position, Grass_Ledge_Y_Position))
+        WIN.blit(Grass_Ledge_image, (Grass_Ledge2_X_Position, Grass_Ledge2_Y_Position))
+        WIN.blit(Grass_Ledge_image, (Grass_Ledge3_X_Position, Grass_Ledge3_Y_Position))
+        WIN.blit(Long_Grass_Ledge_image, (Grass_Ledge4_X_Position, Grass_Ledge4_Y_Position))
+        WIN.blit(Grass_Ledge_image, (Grass_Ledge5_X_Position, Grass_Ledge5_Y_Position))
+        WIN.blit(Grass_Ledge_image, (Grass_Ledge6_X_Position, Grass_Ledge6_Y_Position))
+        WIN.blit(Arrow_image, (Arrow_Sign_X_Position, Arrow_Sign_Y_Position))
+        if not heart_collected: ## Once heart is collected, it is no longer drawn to the screen
+            WIN.blit(Heart_image, (heart.x, heart.y))
+        if slime1_health > 0:
+            WIN.blit(Slime1_Pic, (slime1.x, slime1.y))
+        if slime2_health > 0:
+            WIN.blit(Slime2_Pic, (slime2.x, slime2.y))
+        if slime3_health > 0:
+            WIN.blit(Slime3_Pic, (slime3.x, slime3.y))
+        WIN.blit(Bird_pic, (bird.x, bird.y))
+        WIN.blit(Bomb_image, (projectile.x+5, projectile.y))
+    if level == 2:
+        WIN.blit(Cave_Background_image, (0, 0))
+        WIN.blit(Rock_Ledge_image, (Rock_Ledge_X_Position, Rock_Ledge_Y_Position))
+        WIN.blit(Rock_Ledge_image, (Rock_Ledge2_X_Position, Rock_Ledge2_Y_Position))
+        WIN.blit(Rock_Ledge_image, (rock_ledge3.x, rock_ledge3.y))
+        WIN.blit(Rock_Ledge_image, (Rock_Ledge4_X_Position, Rock_Ledge4_Y_Position))
+        WIN.blit(Rock_Ledge_image, (Rock_Ledge5_X_Position, Rock_Ledge5_Y_Position))
+        WIN.blit(Rock_Ledge_image, (rock_ledge6.x, rock_ledge6.y))
+        WIN.blit(Rock_Ledge_image, (Rock_Ledge7_X_Position, Rock_Ledge7_Y_Position))
+        WIN.blit(Rock_image, (0, Ground_Height))
+        WIN.blit(Rock_image2, (High_Rock_Path_X_Position, High_Rock_Path_Y_Position)) ## Represents the rock in the high path with the dog
+        WIN.blit(Rock_image3, (100, 460)) ## Represents the rock underneath the lava
+        WIN.blit(Wall_image, (Wall_X_Position, Wall_Y_Position))
+        WIN.blit(lava_image, (Lava_X_Position, Lava_Y_Position))
+        WIN.blit(Rotated_Arrow_image, (930, 400))
+        if dog_health > 0: ## Once the dog dies, it is no longer drawn to the screen
+            WIN.blit(Dog_pic, (dog.x, dog.y))
+    if level == 3:
+        WIN.blit(Dungeon_Background_image, (0, 0))
+        WIN.blit(Dungeon_Floor_image, (0, Ground_Height))
+        if not phase1_completed:
+            if ghost_frame_counter <= Ghost_Invisibility_Frames:
+                if ghost1_health > 0: ## If the ghost dies, it is not drawn to the screen
+                    WIN.blit(Ghost1_Pic, (ghost1.x, ghost1.y))
+                if ghost2_health > 0:
+                    WIN.blit(Ghost2_Pic, (ghost2.x, ghost2.y))
+                pygame.event.post(pygame.event.Event(Update_Ghost_Frame_Counter))
+            elif ghost_frame_counter >= Ghost_Invisibility_Frames*2:
+                pygame.event.post(pygame.event.Event(Reset_Ghost_Frame_Counter))
+            else:
+                pygame.event.post(pygame.event.Event(Update_Ghost_Frame_Counter))
+        elif phase1_completed:
+            if slime1_health > 0:
+                WIN.blit(Slime1_Pic, (slime1.x, slime1.y))
+            if slime2_health > 0:
+                WIN.blit(Slime2_Pic, (slime2.x, slime2.y))
+            if slime3_health > 0:
+                WIN.blit(Slime3_Pic, (slime3.x, slime3.y))
+            if slime4_health > 0:
+                WIN.blit(Slime4_Pic, (slime4.x, slime4.y))
+        if phase2_completed:
+            if minotaur_health > 0:
+                WIN.blit(Minotaur_Pic, (minotaur.x, minotaur.y - 15))
+        if phase4_completed: ## After all the enemies are defeated, the arrow sign will fall
+            WIN.blit(Arrow_image, (arrow_sign.x, arrow_sign.y))
+    if level == 4:
+        WIN.blit(Final_Boss_Background_image, (0, 0))
+        WIN.blit(Castle_Floor_image, (0, Ground_Height))
+        if boss_health > 0:
+            WIN.blit(Boss_Pic, (final_boss.x - 10, final_boss.y-20))
+        if not Boss_Disappearing and not Boss_Attack3:
+            WIN.blit(Fireball_Pic, (fireball1.x, fireball1.y))
+            WIN.blit(Fireball_Pic, (fireball2.x, fireball2.y))
+            if Boss_Attack2:
+                WIN.blit(Fireball_Pic, (fireball3.x, fireball3.y))
+                WIN.blit(Fireball_Pic, (fireball4.x, fireball4.y))
+                WIN.blit(Fireball_Pic, (fireball5.x, fireball5.y))
+                WIN.blit(Fireball_Pic, (fireball6.x, fireball6.y))
+                WIN.blit(Fireball_Pic, (fireball7.x, fireball7.y))
+                WIN.blit(Fireball_Pic, (fireball8.x, fireball8.y))
+                WIN.blit(Fireball_Pic, (fireball9.x, fireball9.y))
+                WIN.blit(Fireball_Pic, (fireball10.x, fireball10.y))
+    if protagonist_health >= 4:
+        WIN.blit(Heart_Health_image, (70, 0))
+    if protagonist_health >= 3:
+        WIN.blit(Heart_Health_image, (40, 0))
+    if protagonist_health >= 2:
+        WIN.blit(Heart_Health_image, (10, 0))
+    if protagonist_health >= 1:
+        WIN.blit(Heart_Health_image, (-20, 0))
+    WIN.blit(Protagonist_Pic, (character.x-10, character.y))
+    WIN.blit(Sword_pic, (sword.x, sword.y))
+
+    # Pygame does not update the screen until this line is read
+    pygame.display.update()
+
+def game_over():
+    game_over_text = "Game Over!"
+    draw_game_over = Game_Over_Font.render(game_over_text, 1, RED)
+    WIN.blit(draw_game_over, (WIDTH//2 - draw_game_over.get_width()//2, HEIGHT//2 - draw_game_over.get_height()//2))
+    pygame.display.update()
+    pygame.time.delay(3000)
+
+def beat_game():
+    beat_game_text = "Congratulations"
+    beat_game_text2 = "You Won!"
+    draw_beat_game = Beat_Game_Font.render(beat_game_text, 1, WHITE)
+    WIN.blit(draw_beat_game, (WIDTH//2 - draw_beat_game.get_width()//2, HEIGHT//2 - draw_beat_game.get_height()))
+    draw_beat_game2 = Beat_Game_Font.render(beat_game_text2, 1, WHITE)
+    WIN.blit(draw_beat_game2, (WIDTH//2 - draw_beat_game2.get_width()//2, HEIGHT//2))
+    pygame.display.update()
+    pygame.time.delay(10000)
+
+## This function handles the player moving left and right, and jumping
+def character_movement(keys_pressed, character, rising, grounded, sword, Protagonist_Facing_Right, Current_Ground_Level, Previous_Ground_Level, heart, wall, swing, holding_space):
+    if keys_pressed[pygame.K_LEFT] and keys_pressed[pygame.K_RIGHT]: ## If the character presses left and right at the same time, he won't move
+        character.x += 0
+    elif keys_pressed[pygame.K_LEFT] and character.x - 10 - Character_Vel > 0 and not (character.colliderect(wall) and not Protagonist_Facing_Right): ## Moving Left and making sure the character is not going into the wall. If the character is facing the wall, he will not be allowed to move forward
+        character.x -= Character_Vel ## 10 is subtracted here to better represent the characters sprite, rather than the rectangle
+        sword.x -= Character_Vel
+        if Protagonist_Facing_Right == True and not swing:
+            pygame.event.post(pygame.event.Event(Protagonist_Change_Direction))
+    elif keys_pressed[pygame.K_RIGHT] and character.x -10 + Character_Vel < WIDTH - Protagonist_Width and not (character.colliderect(wall) and Protagonist_Facing_Right): ## Moving right. Same conditions as moving left
+        character.x += Character_Vel ## 10 is subtracted here to better represent the characters sprite, rather than the rectangle
+        sword.x += Character_Vel
+        if Protagonist_Facing_Right == False and not swing:
+            pygame.event.post(pygame.event.Event(Protagonist_Change_Direction))
+    if keys_pressed[pygame.K_SPACE] and not grounded and not holding_space: ## The player will not jump if they are holding the space bar after a previous jump
+        pygame.event.post(pygame.event.Event(Holding_Space_Change))
+    elif not keys_pressed[pygame.K_SPACE] and holding_space: ## If the player is not holding the space bar, the parameter will update to reflect that
+        pygame.event.post(pygame.event.Event(Holding_Space_Change))
+    if keys_pressed[pygame.K_SPACE] and (rising == False) and (grounded == True) and not holding_space: ## The player has pressed jump and the code is preparing to handle this (the player will not be able to jump until he hits the ground again)
+        pygame.time.delay(50) ## amount of milliseconds between jumps
+        rising = True
+        grounded = False
+        pygame.event.post(pygame.event.Event(Grounded_False))
+        pygame.event.post(pygame.event.Event(Rising_True))
+    if rising == True: ## After pressing jump, the character rises until hitting his jump height
+        if character.y > Previous_Ground_Level + Ground_Sprite_Adjustment - Regular_Jump_Height - Protagonist_Height: ## Adding 5 to the ground level here to make sure the coordinates of the bottom of the sprite and the ground lineup
+            character.y -= Jump_Vel
+            sword.y -= Jump_Vel
+        else:
+            pygame.event.post(pygame.event.Event(Rising_False))
+    if rising == False and character.y < Current_Ground_Level + Ground_Sprite_Adjustment - Protagonist_Height: ## After hitting the max jump height, the character now falls back down, again adding 5 to Ground_Height to make sure sprite hits the grass
+        character.y += Jump_Vel
+        sword.y += Jump_Vel
+        pygame.event.post(pygame.event.Event(Grounded_False)) ## In most cases, grounded is already false, but this covers the case of the player falling off the ledge
+    if character.y == Current_Ground_Level + Ground_Sprite_Adjustment - Protagonist_Height and (rising == False): ## Checks if the character is on the ground, which enables the player to jump again, again adding 5 to the ground level to make sure sprite touches the grass
+        pygame.event.post(pygame.event.Event(Update_Previous_Ground_Level))
+        pygame.event.post(pygame.event.Event(Grounded_True))
+
+def enemy_movement(character, sword, slime1, slime2, slime3, slime4, bird, bird_facing_left, projectile, projectile_count, Protagonist_Facing_Right, heart, level, dog, dog_health, ghost1, Ghost1_Moving_Down, ghost2, Ghost2_Moving_Down, Ghost1_Moving_Left, Ghost2_Moving_Left, phase1_completed, Slime1_Facing_Right, Slime2_Facing_Right, Slime3_Facing_Right, Slime4_Facing_Right, minotaur, phase2_completed, minotaur_attack_frame_counter, minotaur_attacking, Minotaur_Facing_Left, arrow_sign, phase4_completed, character_invincibility_frames_counter): 
+    if level == 1:
+        if not Slime1_Facing_Right and slime1.x <= 0: ## Moves the slime left and right
+            pygame.event.post(pygame.event.Event(Change_Slime1_Direction))
+        elif Slime1_Facing_Right and slime1.x >= WIDTH - Slime_Width:
+            pygame.event.post(pygame.event.Event(Change_Slime1_Direction))
+        elif Slime1_Facing_Right:
+            slime1.x += Slime_Vel
+        else:
+            slime1.x -= Slime_Vel
+        if not Slime2_Facing_Right and slime2.x <= 0: ## Moves the slime left and right
+            pygame.event.post(pygame.event.Event(Change_Slime2_Direction))
+        elif Slime2_Facing_Right and slime2.x >= WIDTH - Slime_Width:
+            pygame.event.post(pygame.event.Event(Change_Slime2_Direction))
+        elif Slime2_Facing_Right:
+            slime2.x += Slime_Vel
+        else:
+            slime2.x -= Slime_Vel
+        if not Slime3_Facing_Right and slime3.x <= 0: ## Moves the slime left and right
+            pygame.event.post(pygame.event.Event(Change_Slime3_Direction))
+        elif Slime3_Facing_Right and slime3.x >= WIDTH - Slime_Width:
+            pygame.event.post(pygame.event.Event(Change_Slime3_Direction))
+        elif Slime3_Facing_Right:
+            slime3.x += Slime_Vel
+        else:
+            slime3.x -= Slime_Vel
+        if bird.x == 0 and bird_facing_left == True: ## Moves the bird right and flips its sprite
+            bird.x -= Bird_Vel
+            pygame.event.post(pygame.event.Event(Switch_Bird_Direction))
+        elif bird.x == WIDTH - Bird_Width and bird_facing_left == False: ## Moves the bird left and flips its sprite
+            pygame.event.post(pygame.event.Event(Switch_Bird_Direction))
+            bird.x += Bird_Vel
+        elif bird_facing_left == True: ## Moves the bird left or right depending on the direction it faces
+            bird.x -= Bird_Vel
+        else:
+            bird.x += Bird_Vel
+        if (character.colliderect(slime1) or character.colliderect(slime2) or character.colliderect(slime3)) and character_invincibility_frames_counter > Invincibility_Frames: ## If the character collides with the slime, he loses health and is moved in the opposite direction to the one he is facing
+            pygame.event.post(pygame.event.Event(Protagonist_Lose_Health))
+            pygame.event.post(pygame.event.Event(Reset_Invincibility_Frames_Counter))
+            if Protagonist_Facing_Right:
+                character.x -= Character_Fallback
+                sword.x -= Character_Fallback
+            else:
+                character.x += Character_Fallback
+                sword.x += Character_Fallback
+        if projectile_count == 1: ## Spawns the projectile at the place of the bird once the previous projectile has landed
+            projectile.x, projectile.y = bird.x, bird.y
+            pygame.event.post(pygame.event.Event(Change_Projectile_Count))
+        elif projectile_count == 0 and projectile.y < Y_Position: ## Moves a launched projectile straight down
+            projectile.y += Projectile_Vel
+        else:
+            pygame.event.post(pygame.event.Event(Change_Projectile_Count))
+        if character.colliderect(projectile) and character_invincibility_frames_counter > Invincibility_Frames: ## Damages the character if hit by a projectile
+            character.x -= Character_Fallback*2 ## Increased fallback to avoid taking more than 1 damage from projectile
+            sword.x -= Character_Fallback*2
+            pygame.event.post(pygame.event.Event(Protagonist_Lose_Health)) ## Protagonist loses health
+            pygame.event.post(pygame.event.Event(Reset_Invincibility_Frames_Counter))
+        if character.colliderect(heart):
+            pygame.event.post(pygame.event.Event(Collect_Heart)) ## Protagonist gains health
+    elif level == 2:
+        if character.colliderect(dog) and character_invincibility_frames_counter > Invincibility_Frames:
+            pygame.event.post(pygame.event.Event(Protagonist_Lose_Health))
+            pygame.event.post(pygame.event.Event(Reset_Invincibility_Frames_Counter))
+            if Protagonist_Facing_Right: ## Character is pushed back in the opposite direction that he faces when he runs into the dog
+                character.x -= Character_Fallback*3
+                sword.x -= Character_Fallback*3
+            else:
+                character.x += Character_Fallback*3
+                sword.x += Character_Fallback*3
+        if character.x > High_Rock_Path_X_Position - Protagonist_Width and character.y <= High_Rock_Path_Y_Position: ## Checks if the character is in the position on the map that is in the dogs sight
+            if dog.x > High_Rock_Path_X_Position: ## After the character is in the dogs sight, he will move toward the character
+                pygame.event.post(pygame.event.Event(Dog_Moving_Left))
+                dog.x -= Dog_Vel
+            else:
+                pygame.event.post(pygame.event.Event(Dog_Idle)) ## If the dog reaches the edge of the platform, he will be idle again
+        else:
+            pygame.event.post(pygame.event.Event(Dog_Idle)) ## If the character leaves the area, the dog will be idle again
+        if dog.x + Dog_Width < High_Rock_Path_X_Position:
+            if dog.y + Dog_Height < Lava_Y_Position:
+                dog.y += Character_Vel
+            elif dog_health > 0:
+                pygame.event.post(pygame.event.Event(Dog_Lose_Health))
+    elif level == 3:
+        if character.colliderect(ghost1) and character_invincibility_frames_counter > Invincibility_Frames: ## Character runs into ghost1 and is pushed back in the opposite direction that he faces
+            pygame.event.post(pygame.event.Event(Protagonist_Lose_Health))
+            pygame.event.post(pygame.event.Event(Reset_Invincibility_Frames_Counter))
+            if Protagonist_Facing_Right:
+                character.x -= Character_Fallback
+                sword.x -= Character_Fallback
+            else:
+                character.x += Character_Fallback
+                sword.x += Character_Fallback
+        if character.colliderect(ghost2) and character_invincibility_frames_counter > Invincibility_Frames: ## Character runs into ghost2 and is pushed back in the opposite direction that he faces
+            pygame.event.post(pygame.event.Event(Protagonist_Lose_Health))
+            pygame.event.post(pygame.event.Event(Reset_Invincibility_Frames_Counter))
+            if Protagonist_Facing_Right:
+                character.x -= Character_Fallback
+                sword.x -= Character_Fallback
+            else:
+                character.x += Character_Fallback
+                sword.x += Character_Fallback
+        if phase1_completed:
+            if slime1.y < Ground_Height - Slime_Height: ## The height at which the slime looks like it is touching the ground
+                slime1.y += Character_Vel
+            if slime2.y < Ground_Height - Slime_Height:
+                slime2.y += Character_Vel
+            if slime3.y < Ground_Height - Slime_Height:
+                slime3.y += Character_Vel
+            if slime4.y < Ground_Height - Slime_Height:
+                slime4.y += Character_Vel
+            if slime1.y >= Ground_Height - Slime_Height: ## Once the slime touches the ground, he will be able to move left and right
+                if slime1.x >= WIDTH - Slime_Width and Slime1_Facing_Right:
+                    pygame.event.post(pygame.event.Event(Change_Slime1_Direction))
+                elif slime1.x <= 0 and not Slime1_Facing_Right:
+                    pygame.event.post(pygame.event.Event(Change_Slime1_Direction))
+                elif Slime1_Facing_Right:
+                    slime1.x += Slime_Vel
+                else:
+                    slime1.x -= Slime_Vel
+            if slime2.y >= Ground_Height - Slime_Height:
+                if slime2.x >= WIDTH - Slime_Width and Slime2_Facing_Right:
+                    pygame.event.post(pygame.event.Event(Change_Slime2_Direction))
+                elif slime2.x <= 0 and not Slime2_Facing_Right:
+                    pygame.event.post(pygame.event.Event(Change_Slime2_Direction))
+                elif Slime2_Facing_Right:
+                    slime2.x += Slime_Vel
+                else:
+                    slime2.x -= Slime_Vel
+            if slime3.y >= Ground_Height - Slime_Height:
+                if slime3.x >= WIDTH - Slime_Width and Slime3_Facing_Right:
+                    pygame.event.post(pygame.event.Event(Change_Slime3_Direction))
+                elif slime3.x <= 0 and not Slime3_Facing_Right:
+                    pygame.event.post(pygame.event.Event(Change_Slime3_Direction))
+                elif Slime3_Facing_Right:
+                    slime3.x += Slime_Vel
+                else:
+                    slime3.x -= Slime_Vel
+            if slime4.y >= Ground_Height - Slime_Height:
+                if slime4.x >= WIDTH - Slime_Width and Slime4_Facing_Right:
+                    pygame.event.post(pygame.event.Event(Change_Slime4_Direction))
+                elif slime4.x <= 0 and not Slime4_Facing_Right:
+                    pygame.event.post(pygame.event.Event(Change_Slime4_Direction))
+                elif Slime4_Facing_Right:
+                    slime4.x += Slime_Vel
+                else:
+                    slime4.x -= Slime_Vel
+            if (character.colliderect(slime1) or character.colliderect(slime2) or character.colliderect(slime3) or character.colliderect(slime4)) and character_invincibility_frames_counter > Invincibility_Frames: ## If the character collides with the slime, he loses health and is moved in the opposite direction to the one he is facing
+                pygame.event.post(pygame.event.Event(Protagonist_Lose_Health))
+                pygame.event.post(pygame.event.Event(Reset_Invincibility_Frames_Counter))
+                if Protagonist_Facing_Right:
+                    character.x -= Character_Fallback
+                    sword.x -= Character_Fallback
+                else:
+                    character.x += Character_Fallback
+                    sword.x += Character_Fallback
+        if phase2_completed:
+            if minotaur.y - 15 < Ground_Height - Minotaur_Height: ## 15 is subtracted here because the height of the minotaur's rectangle is different than its image
+                minotaur.y += Character_Vel ## Minotaur falls down until it hits the ground
+            if minotaur.y - 15 >= Ground_Height - Minotaur_Height: ## 15 is subtracted here because the height of the minotaur's rectangle is different than its image
+                if minotaur_attack_frame_counter > Minotaur_Attack_Frames: ## Enough frames have passed, so the minotaur starts to attack
+                    pygame.event.post(pygame.event.Event(Update_Minotaur_Attacking))
+                if minotaur_attacking:
+                    if minotaur_attack_frame_counter >= Minotaur_Animation_Frames: ## If not enough frames have passed, the minotaur will stay in its attack animation, if enough frames have passed, his attack will end
+                        pygame.event.post(pygame.event.Event(Update_Minotaur_Attacking))
+                pygame.event.post(pygame.event.Event(Increase_Minotaur_Attack_Frame_Counter))
+                pygame.event.post(pygame.event.Event(Update_Minotaur_Pic))
+                if not minotaur_attacking and character.x - 10 + 30 < minotaur.x: ## Minotaur moves left and right depending on the location of the character. He will stop within 30 units of the character
+                    minotaur.x -= Minotaur_Vel
+                    pygame.event.post(pygame.event.Event(Minotaur_Moving_Left))
+                elif not minotaur_attacking and character.x - 10 - 30 > minotaur.x:
+                    minotaur.x += Minotaur_Vel
+                    pygame.event.post(pygame.event.Event(Minotaur_Moving_Right))
+            if character.colliderect(minotaur) and character_invincibility_frames_counter > Invincibility_Frames:
+                pygame.event.post(pygame.event.Event(Protagonist_Lose_Health))
+                pygame.event.post(pygame.event.Event(Reset_Invincibility_Frames_Counter))
+                if Minotaur_Facing_Left and minotaur_attacking: ## The character will fallback in the direction that the minotaur faces
+                    if character.x - Character_Fallback*2 > 0:
+                        character.x -= Character_Fallback*2
+                        sword.x -= Character_Fallback*2
+                    elif Protagonist_Facing_Right:
+                        character.x = 10
+                        sword.x = Protagonist_Width - 9
+                    else:
+                        character.x = 10
+                        sword.x = -10
+                elif Minotaur_Facing_Left and not minotaur_attacking: ## If the character collides with the minotaur when it is not attacking, the character will fall back in the opposite direction of the one he faces
+                    if Protagonist_Facing_Right:
+                        if character.x - Character_Fallback > 0:
+                            character.x -= Character_Fallback
+                            sword.x -= Character_Fallback
+                        else:
+                            character.x = 10
+                            sword.x = Protagonist_Width - 9
+                    else:
+                        character.x += Character_Fallback
+                        sword.x += Character_Fallback
+                else:
+                    character.x += Character_Fallback
+                    sword.x += Character_Fallback
+        if phase4_completed: ## Arrow_Sign will fall until it hits the ground
+            if arrow_sign.y < Ground_Height - Arrow_Sign_Height:
+                arrow_sign.y += Character_Vel
+    pygame.event.post(pygame.event.Event(Increase_Invincibility_Frames_Counter))
+
+       
+def ground_level(character, sword, level, Protagonist_Facing_Right, rock_ledge3, Rock_Ledge3_Moving_Right, grounded, rock_ledge6, Rock_Ledge6_Moving_Right):
+    if level == 1:
+        if (Grass_Ledge4_X_Position - Protagonist_Width*3//4 < character.x - 10 < WIDTH - Protagonist_Width//4) and character.y <= Grass_Ledge4_Y_Position - Protagonist_Height + Ground_Sprite_Adjustment: ## Since ledge 4 is above other ledges it needs to be checked first
+            return Grass_Ledge4_Y_Position
+        if Grass_Ledge_X_Position - Protagonist_Width*3//4 < character.x - 10 < Grass_Ledge_X_Position + Grass_Ledge_Width - Protagonist_Width//4: ## Checks the characters x and y positions and determines what the ground level should be, subtracting 10 from character.x to better represent the location of the characters sprite
+            if character.y <= Grass_Ledge_Y_Position - Protagonist_Height + Ground_Sprite_Adjustment: ## Since the character sprite is actually 5 units lower than portrayed, the check point for the y position needs to be 5 units lower to make sure the protagonist is placed properly
+                return Grass_Ledge_Y_Position
+        if (Grass_Ledge2_X_Position - Protagonist_Width*3//4 < character.x - 10< Grass_Ledge2_X_Position + Grass_Ledge_Width - Protagonist_Width//4) and character.y <= Grass_Ledge2_Y_Position - Protagonist_Height + Ground_Sprite_Adjustment: ## The character is allowed to have 3/4 of his sprite over the ledge before falling off
+            return Grass_Ledge2_Y_Position
+        if (Grass_Ledge3_X_Position - Protagonist_Width*3//4 < character.x - 10 < Grass_Ledge3_X_Position + Grass_Ledge_Width - Protagonist_Width//4) and character.y <= Grass_Ledge3_Y_Position - Protagonist_Height + Ground_Sprite_Adjustment:
+            return Grass_Ledge3_Y_Position
+        if (Grass_Ledge5_X_Position - Protagonist_Width*3//4 < character.x - 10 < Grass_Ledge5_X_Position + Grass_Ledge_Width - Protagonist_Width//4) and character.y <= Grass_Ledge5_Y_Position - Protagonist_Height + Ground_Sprite_Adjustment:
+            return Grass_Ledge5_Y_Position
+        if (Grass_Ledge6_X_Position - Protagonist_Width*3//4 < character.x - 10 < Grass_Ledge6_X_Position + Grass_Ledge_Width - Protagonist_Width//4) and character.y <= Grass_Ledge6_Y_Position - Protagonist_Height + Ground_Sprite_Adjustment:
+            return Grass_Ledge6_Y_Position
+    elif level == 2:
+        if Lava_X_Position < character.x - 10 + Protagonist_Width//2 < Lava_X_Position + Lava_Width and character.y >= Lava_Y_Position - Protagonist_Height + Ground_Sprite_Adjustment: ## Checks if the character is in the lava
+            pygame.time.delay(200) ## Slight delay before resetting character to the startpoint
+            if Protagonist_Facing_Right:
+                character.x = 10
+                sword.x = Protagonist_Width - 9
+                character.y -= 10
+                sword.y -= 10
+            else:
+                character.x = 10
+                sword.x = -10
+                character.y -= 10
+                sword.y -= 10
+                pygame.event.post(pygame.event.Event(Protagonist_Change_Direction)) ## If character is facing left, he is adjusted back to facing right again
+            pygame.event.post(pygame.event.Event(Protagonist_Lose_Health))
+        if Rock_Ledge6_Moving_Right: ## Handles the moving ledges moving back and forth, if it hits the edge of its range, it will change directions and move the other way
+            if rock_ledge6.x >= Rock_Ledge6_X_Position + 500:
+                pygame.event.post(pygame.event.Event(Rock_Ledge6_Change_Direction))
+                rock_ledge6.x += Rock_Ledge_Vel*2
+            else:
+                rock_ledge6.x += Rock_Ledge_Vel*2
+        elif rock_ledge6.x <= Rock_Ledge6_X_Position:
+            pygame.event.post(pygame.event.Event(Rock_Ledge6_Change_Direction))
+            rock_ledge6.x -= Rock_Ledge_Vel*2
+        else:
+            rock_ledge6.x -= Rock_Ledge_Vel*2
+        if Rock_Ledge3_Moving_Right: ## Same thing as rock ledge 6
+            if rock_ledge3.x >= Rock_Ledge3_X_Position + 200:
+                pygame.event.post(pygame.event.Event(Rock_Ledge3_Change_Direction))
+            else:
+                rock_ledge3.x += Rock_Ledge_Vel
+        elif rock_ledge3.x <= Rock_Ledge3_X_Position:
+            pygame.event.post(pygame.event.Event(Rock_Ledge3_Change_Direction))
+        else:
+            rock_ledge3.x -= Rock_Ledge_Vel
+        if High_Rock_Path_X_Position - Protagonist_Width*3//4 < character.x - 10 < High_Rock_Path_X_Position + High_Rock_Path_Width - Protagonist_Width//4 and character.y <= High_Rock_Path_Y_Position - Protagonist_Height + Ground_Sprite_Adjustment: ## Updates the ground level if the character is on the high path
+            return High_Rock_Path_Y_Position
+        elif rock_ledge6.x - Protagonist_Width*3//4 < character.x - 10 < rock_ledge6.x + Rock_Ledge_Width - Protagonist_Width//4 and character.y <= rock_ledge6.y - Protagonist_Height + Ground_Sprite_Adjustment:
+            if grounded == True and Rock_Ledge6_Moving_Right: ## Checks if the character is on the moving ledge, and moves the character along with the ledge accordingly
+                character.x += Rock_Ledge_Vel*2
+                sword.x += Rock_Ledge_Vel*2
+            elif grounded == True and not Rock_Ledge6_Moving_Right:
+                character.x -= Rock_Ledge_Vel*2
+                sword.x -= Rock_Ledge_Vel*2
+        elif rock_ledge3.x - Protagonist_Width*3//4 < character.x - 10 < rock_ledge3.x + Rock_Ledge_Width - Protagonist_Width//4 and character.y <= rock_ledge3.y - Protagonist_Height + Ground_Sprite_Adjustment: ## Same thing as rock ledge 6
+            if grounded == True and Rock_Ledge3_Moving_Right and rock_ledge3.x != Rock_Ledge3_X_Position + 200:
+                character.x += Rock_Ledge_Vel
+                sword.x += Rock_Ledge_Vel
+            elif grounded == True and not Rock_Ledge3_Moving_Right and rock_ledge3.x != Rock_Ledge3_X_Position:
+                character.x -= Rock_Ledge_Vel
+                sword.x -= Rock_Ledge_Vel
+        if High_Rock_Path_X_Position - Protagonist_Width*3//4 < character.x - 10 < High_Rock_Path_X_Position + High_Rock_Path_Width - Protagonist_Width//4 and character.y <= High_Rock_Path_Y_Position - Protagonist_Height + Ground_Sprite_Adjustment:
+            return High_Rock_Path_Y_Position
+        if rock_ledge6.x - Protagonist_Width*3//4 < character.x - 10 < rock_ledge6.x + Rock_Ledge_Width - Protagonist_Width//4 and character.y <= rock_ledge6.y - Protagonist_Height + Ground_Sprite_Adjustment:
+            return rock_ledge6.y
+        if Rock_Ledge_X_Position - Protagonist_Width*3//4 < character.x - 10 < Rock_Ledge_X_Position + Rock_Ledge_Width - Protagonist_Width//4 and character.y <= Rock_Ledge_Y_Position - Protagonist_Height + Ground_Sprite_Adjustment:
+            return Rock_Ledge_Y_Position
+        if Rock_Ledge2_X_Position - Protagonist_Width*3//4 < character.x - 10 < Rock_Ledge2_X_Position + Rock_Ledge_Width - Protagonist_Width//4 and character.y <= Rock_Ledge2_Y_Position - Protagonist_Height + Ground_Sprite_Adjustment:
+            return Rock_Ledge2_Y_Position
+        if Rock_Ledge5_X_Position - Protagonist_Width*3//4 < character.x - 10 < Rock_Ledge5_X_Position + Rock_Ledge_Width - Protagonist_Width//4 and character.y <= Rock_Ledge5_Y_Position - Protagonist_Height + Ground_Sprite_Adjustment:
+            return Rock_Ledge5_Y_Position
+        if rock_ledge3.x - Protagonist_Width*3//4 < character.x - 10 < rock_ledge3.x + Rock_Ledge_Width - Protagonist_Width//4 and character.y <= rock_ledge3.y - Protagonist_Height + Ground_Sprite_Adjustment:
+            return rock_ledge3.y
+        if Rock_Ledge4_X_Position - Protagonist_Width*3//4 < character.x - 10 < Rock_Ledge4_X_Position + Rock_Ledge_Width - Protagonist_Width//4 and character.y <= Rock_Ledge4_Y_Position - Protagonist_Height + Ground_Sprite_Adjustment:
+            return Rock_Ledge4_Y_Position
+        if Rock_Ledge7_X_Position - Protagonist_Width*3//4 < character.x - 10 < Rock_Ledge7_X_Position + Rock_Ledge_Width - Protagonist_Width//4 and character.y <= Rock_Ledge7_Y_Position - Protagonist_Height + Ground_Sprite_Adjustment:
+            return Rock_Ledge7_Y_Position
+        if Lava_X_Position < character.x - 10 + Protagonist_Width//4 < Lava_X_Position + Lava_Width and character.y <= Lava_Y_Position - Protagonist_Height + Ground_Sprite_Adjustment:
+            return Lava_Y_Position
+        if character.x - 10 >= 100 + Lava_Width: ## Checks if the character has gone to the far right of the screen and updates the ground height for the character to fall the full distance
+            return HEIGHT
+    return Ground_Height ## Base case, if all other cases fail, then the height will be the height of the floor
+
+## This function tells the code how to move the sword
+def swordmovement(keys_pressed, swing, sword, slime1, slime2, slime3, slime4, Protagonist_Facing_Right, level, frame_counter, dog, ghost1, ghost2, minotaur, holding_shift, enemy_invincibility_frames_counter, final_boss, Boss_Disappearing, flying_final_boss, Boss_Attack3_Part1):
+    if keys_pressed[pygame.K_RSHIFT] and swing == False and frame_counter >= Sword_Frame_Counter and not holding_shift: ## Tells the main function to rotate the sword down, but only once enough frames have passed to ensure the sword is not spammed too quickly
+        pygame.time.delay(10) ## Sword will not swing if the shift button is being held down
+        pygame.event.post(pygame.event.Event(Sword_Swing_Down))
+        pygame.event.post(pygame.event.Event(Swing_True))
+        pygame.event.post(pygame.event.Event(Reset_Frame_Counter)) ## Resets counter so the player will have to wait a certain amount of frames before using the sword again
+    if swing == True and keys_pressed[pygame.K_RSHIFT]: ## The player is holding shift
+        pygame.event.post(pygame.event.Event(Player_Holding_Shift))
+    if not keys_pressed[pygame.K_RSHIFT]:
+        pygame.event.post(pygame.event.Event(Player_Not_Holding_Shift))
+    if swing == True: ## Tells the main function to rotate the sword back up
+        if level == 1 or level == 3: ## slimes are only in level 1 and 3
+            if sword.colliderect(slime1) and enemy_invincibility_frames_counter > Enemy_Invincibility_Frames: ## Damages the slime
+                pygame.event.post(pygame.event.Event(Reset_Enemy_Invincibility_Frames_Counter))
+                pygame.event.post(pygame.event.Event(Slime1_Lose_Health))
+                if Protagonist_Facing_Right:
+                    slime1.x += 20
+                else:
+                    slime1.x -= 20
+            if sword.colliderect(slime2) and enemy_invincibility_frames_counter > Enemy_Invincibility_Frames: ## Damages the slime
+                pygame.event.post(pygame.event.Event(Reset_Enemy_Invincibility_Frames_Counter))
+                pygame.event.post(pygame.event.Event(Slime2_Lose_Health))
+                if Protagonist_Facing_Right:
+                    slime2.x += 20
+                else:
+                    slime2.x -= 20
+            if sword.colliderect(slime3) and enemy_invincibility_frames_counter > Enemy_Invincibility_Frames: ## Damages the slime
+                pygame.event.post(pygame.event.Event(Reset_Enemy_Invincibility_Frames_Counter))
+                pygame.event.post(pygame.event.Event(Slime3_Lose_Health))
+                if Protagonist_Facing_Right:
+                    slime3.x += 20
+                else:
+                    slime3.x -= 20
+        if level == 2:
+            if sword.colliderect(dog) and enemy_invincibility_frames_counter > Enemy_Invincibility_Frames: ## Damages the dog
+                pygame.event.post(pygame.event.Event(Reset_Enemy_Invincibility_Frames_Counter))
+                pygame.event.post(pygame.event.Event(Dog_Lose_Health))
+                if Protagonist_Facing_Right:
+                    dog.x += 20
+                else:
+                    dog.x -= 20
+        if level == 3:
+            if sword.colliderect(ghost1) and enemy_invincibility_frames_counter > Enemy_Invincibility_Frames: ## damages ghost 1
+                pygame.event.post(pygame.event.Event(Reset_Enemy_Invincibility_Frames_Counter))
+                pygame.event.post(pygame.event.Event(Ghost1_Lose_Health))
+                if Protagonist_Facing_Right:
+                    ghost1.x += 20
+                else:
+                    ghost1.x -= 20
+            if sword.colliderect(ghost2) and enemy_invincibility_frames_counter > Enemy_Invincibility_Frames: ## Damages ghost 2
+                pygame.event.post(pygame.event.Event(Reset_Enemy_Invincibility_Frames_Counter))
+                pygame.event.post(pygame.event.Event(Ghost2_Lose_Health))
+                if Protagonist_Facing_Right:
+                    ghost2.x += 20
+                else:
+                    ghost2.x -= 20
+            if sword.colliderect(slime4) and enemy_invincibility_frames_counter > Enemy_Invincibility_Frames: ## Damages the slime
+                pygame.event.post(pygame.event.Event(Reset_Enemy_Invincibility_Frames_Counter))
+                pygame.event.post(pygame.event.Event(Slime4_Lose_Health))
+                if Protagonist_Facing_Right:
+                    slime4.x += 20
+                else:
+                    slime4.x -= 20
+            if sword.colliderect(minotaur) and enemy_invincibility_frames_counter > Enemy_Invincibility_Frames: ## Damages the minotaur
+                pygame.event.post(pygame.event.Event(Reset_Enemy_Invincibility_Frames_Counter))
+                pygame.event.post(pygame.event.Event(Minotaur_Lose_Health))
+                if Protagonist_Facing_Right:
+                    minotaur.x += 15
+                else:
+                    minotaur.x -= 15
+        if level == 4:
+            if sword.colliderect(final_boss) and enemy_invincibility_frames_counter > Enemy_Invincibility_Frames and not Boss_Disappearing and Boss_Attack3_Part1:
+                pygame.event.post(pygame.event.Event(Reset_Enemy_Invincibility_Frames_Counter))
+                pygame.event.post(pygame.event.Event(Boss_Lose_Health))
+            elif sword.colliderect(flying_final_boss) and enemy_invincibility_frames_counter > Enemy_Invincibility_Frames and not Boss_Attack3_Part1:
+                pygame.event.post(pygame.event.Event(Reset_Enemy_Invincibility_Frames_Counter))
+                pygame.event.post(pygame.event.Event(Boss_Lose_Health))
+        if frame_counter >= Sword_Frame_Counter: ## Allows the sword to swing if a certain number of frames have passed and then resets the parameters
+            pygame.event.post(pygame.event.Event(Sword_Swing_Up))
+            pygame.event.post(pygame.event.Event(Swing_False))
+            pygame.event.post(pygame.event.Event(Reset_Frame_Counter))
+        else:
+            pygame.event.post(pygame.event.Event(Increase_Frame_Counter))
+            pygame.event.post(pygame.event.Event(Update_Enemy_Invincibility_Frames_Counter))
+    else:
+        pygame.event.post(pygame.event.Event(Increase_Frame_Counter))
+        pygame.event.post(pygame.event.Event(Update_Enemy_Invincibility_Frames_Counter))
+
+## This function defines how the ghosts in level 3 will move
+def ghost_movement(ghost1, Ghost1_Moving_Down, Ghost1_Moving_Left, ghost2, Ghost2_Moving_Down, Ghost2_Moving_Left):
+    if ghost1.x >= (WIDTH - Ghost_Width) and not Ghost1_Moving_Left: ## If ghost hits the end of the screen, he will change directions from right to left
+        pygame.event.post(pygame.event.Event(Ghost1_Change_Horizontal_Direction))
+        ghost1.x -= Ghost_Vel
+    elif ghost1.x <= 0 and Ghost1_Moving_Left: ## Change directions from left to right
+        pygame.event.post(pygame.event.Event(Ghost1_Change_Horizontal_Direction))
+        ghost1.x += Ghost_Vel
+    elif Ghost1_Moving_Left: ## Moving left
+        ghost1.x -= Ghost_Vel
+    else: ## Moving right
+        ghost1.x += Ghost_Vel
+    if ghost2.x > WIDTH - Ghost_Width and not Ghost2_Moving_Left:
+        pygame.event.post(pygame.event.Event(Ghost2_Change_Horizontal_Direction))
+        ghost2.x -= Ghost_Vel
+    elif ghost2.x <= 0 and Ghost2_Moving_Left:
+        pygame.event.post(pygame.event.Event(Ghost2_Change_Horizontal_Direction))
+        ghost2.x += Ghost_Vel
+    elif Ghost2_Moving_Left:
+        ghost2.x -= Ghost_Vel
+    else:
+        ghost2.x += Ghost_Vel
+    if ghost1.y <= Ghost1_Y_Position and not Ghost1_Moving_Down: ## Moves the ghost up and down from its starting height to the ground level
+        pygame.event.post(pygame.event.Event(Ghost1_Change_Vertical_Direction))
+    elif ghost1.y >= Ground_Height - Protagonist_Height and Ghost1_Moving_Down:
+        pygame.event.post(pygame.event.Event(Ghost1_Change_Vertical_Direction))
+    elif Ghost1_Moving_Down:
+        ghost1.y += Ghost_Vel
+    else:
+        ghost1.y -= Ghost_Vel
+    if ghost2.y <= Ghost2_Y_Position and not Ghost2_Moving_Down: ## The ghost will change directions once it hits its peak or the ground
+        pygame.event.post(pygame.event.Event(Ghost2_Change_Vertical_Direction))
+    elif ghost2.y >= Ground_Height - Protagonist_Height and Ghost2_Moving_Down:
+        pygame.event.post(pygame.event.Event(Ghost2_Change_Vertical_Direction))
+    elif Ghost2_Moving_Down:
+        ghost2.y += Ghost_Vel
+    else:
+        ghost2.y -= Ghost_Vel
+
+def boss_movement(final_boss, character, sword, final_boss_frame_counter, character_invincibility_frames_counter, Protagonist_Facing_Right, Boss_Attack1, Boss_Disappearing, Boss_Attack2, fireball1, fireball2, fireball3, fireball4, fireball5, fireball6, fireball7, fireball8, fireball9, fireball10, Boss_Facing_Left, Boss_Attack2_Part1, Boss_Attack3, Boss_Attack3_Part1, flying_final_boss):
+    if character.colliderect(final_boss) and character_invincibility_frames_counter > Invincibility_Frames*2 and not Boss_Disappearing and Boss_Attack3_Part1: ## Character runs into final boss and is pushed back in the opposite direction that he faces
+        pygame.event.post(pygame.event.Event(Protagonist_Lose_Health))
+        pygame.event.post(pygame.event.Event(Reset_Invincibility_Frames_Counter))
+        if Boss_Attack3: ## Double the fallback if hit when boss is flying fast
+            if Protagonist_Facing_Right:
+                character.x -= Character_Fallback*2
+                sword.x -= Character_Fallback*2
+            else:
+                character.x += Character_Fallback*2
+                sword.x += Character_Fallback*2
+        if Protagonist_Facing_Right:
+            character.x -= Character_Fallback
+            sword.x -= Character_Fallback
+        else:
+            character.x += Character_Fallback
+            sword.x += Character_Fallback
+    if character.colliderect(flying_final_boss) and character_invincibility_frames_counter > Invincibility_Frames and not Boss_Attack3_Part1:
+        pygame.event.post(pygame.event.Event(Protagonist_Lose_Health))
+        pygame.event.post(pygame.event.Event(Reset_Invincibility_Frames_Counter))
+        if Protagonist_Facing_Right:
+            character.x -= Character_Fallback
+            sword.x -= Character_Fallback
+        else:
+            character.x += Character_Fallback
+            sword.x += Character_Fallback
+    if (character.colliderect(fireball1) or character.colliderect(fireball2)) and character_invincibility_frames_counter > Invincibility_Frames*2 and not Boss_Disappearing and not Boss_Attack3:
+        pygame.event.post(pygame.event.Event(Protagonist_Lose_Health)) ## Invincibility frames are doubled here to avoid the player getting damaged multiple times by the same fireball
+        pygame.event.post(pygame.event.Event(Reset_Invincibility_Frames_Counter))
+        if Protagonist_Facing_Right:
+            character.x -= Character_Fallback
+            sword.x -= Character_Fallback
+        else:
+            character.x += Character_Fallback
+            sword.x += Character_Fallback
+    if Boss_Attack2 and (character.colliderect(fireball3) or character.colliderect(fireball4) or character.colliderect(fireball5) or character.colliderect(fireball6) or character.colliderect(fireball7) or character.colliderect(fireball8) or character.colliderect(fireball9) or character.colliderect(fireball10)) and character_invincibility_frames_counter > Invincibility_Frames*2 and not Boss_Disappearing: ## Character runs into final boss and is pushed back in the opposite direction that he faces
+        pygame.event.post(pygame.event.Event(Protagonist_Lose_Health)) ## Invincibility frames are doubled here to avoid the player getting damaged multiple times by the same fireball
+        pygame.event.post(pygame.event.Event(Reset_Invincibility_Frames_Counter))
+        if Protagonist_Facing_Right:
+            character.x -= Character_Fallback
+            sword.x -= Character_Fallback
+        else:
+            character.x += Character_Fallback
+            sword.x += Character_Fallback
+    if Boss_Attack1 and not Boss_Disappearing:
+        if final_boss_frame_counter <= 1:
+            if character.x <= WIDTH//2:
+                final_boss.x = WIDTH - Boss_Width + 10
+                pygame.event.post(pygame.event.Event(Boss_Face_Left))
+            else:
+                final_boss.x = 10
+                pygame.event.post(pygame.event.Event(Boss_Face_Right))
+            final_boss.y = Boss_Y_Position + 20
+        fireball1.y = final_boss.y - 10 - 20
+        fireball2.y = final_boss.y + Boss_Height//2 - 20
+        if final_boss_frame_counter >= First_Attack_Frames:
+            pygame.event.post(pygame.event.Event(Change_Boss_Disappearing))
+            pygame.event.post(pygame.event.Event(Reset_Final_Boss_Frame_Counter))
+            pygame.event.post(pygame.event.Event(Change_Boss_Attack1))
+            pygame.event.post(pygame.event.Event(Change_Boss_Attack2))
+        elif Boss_Facing_Left:
+            if fireball1.x <= 0 and final_boss_frame_counter % (First_Attack_Frames//5) == 0:
+                fireball1.x = final_boss.x
+            else:
+                fireball1.x -= Fireball_Vel
+            if fireball2.x <= 0 and final_boss_frame_counter % (First_Attack_Frames//5) == 0:
+                fireball2.x = final_boss.x
+            else:
+                fireball2.x -= Fireball_Vel*2
+        elif not Boss_Facing_Left:
+            if fireball1.x >= WIDTH - Fireball_Width and final_boss_frame_counter % (First_Attack_Frames//5) == 0:
+                fireball1.x = final_boss.x
+            else:
+                fireball1.x += Fireball_Vel
+            if fireball2.x >= WIDTH - Fireball_Width and final_boss_frame_counter % (First_Attack_Frames//5) == 0:
+                fireball2.x = final_boss.x
+            else:
+                fireball2.x += Fireball_Vel*2
+    if Boss_Disappearing and final_boss_frame_counter >= Boss_Disappearing_Frames:
+        pygame.event.post(pygame.event.Event(Change_Boss_Disappearing))
+        pygame.event.post(pygame.event.Event(Reset_Final_Boss_Frame_Counter))
+        if Boss_Attack2:
+            pygame.event.post(pygame.event.Event(Update_Boss_Attack_Picture))
+            fireball1.y = 0
+            fireball2.y = 0
+            fireball3.y = 0
+            fireball4.y = 0
+            fireball5.y = 0
+            fireball6.y = 0
+            fireball7.y = 0                
+            fireball8.y = 0
+            fireball9.y = 0
+            fireball10.y = 0
+        if Boss_Attack1 and character.x <= WIDTH//2:
+            fireball1.x = WIDTH - Boss_Width + 10
+            fireball2.x = WIDTH - Boss_Width + 10
+        elif Boss_Attack1:
+            fireball1.x = 10
+            fireball2.x = 10
+        if Boss_Attack3:
+            pygame.event.post(pygame.event.Event(Update_Boss_Attack_Picture))
+            final_boss.x = character.x
+            final_boss.y = HEIGHT+20
+    if Boss_Attack2 and not Boss_Disappearing:
+        final_boss.x = WIDTH//2 - Boss_Width//2 + 10
+        final_boss.y = Ground_Height//2 - Boss_Height + 20
+        if Boss_Attack2_Part1:
+            fireball1.x = WIDTH*0//10
+            fireball2.x = WIDTH*1//10
+            fireball3.x = WIDTH*2//10
+            fireball4.x = WIDTH*3//10
+            fireball5.x = WIDTH*4//10
+            fireball6.x = WIDTH*5//10
+            fireball7.x = WIDTH*6//10
+            fireball8.x = WIDTH*7//10
+            fireball9.x = WIDTH*8//10
+            fireball10.x = WIDTH*9//10
+        else:
+            fireball1.x = WIDTH*0.5//10
+            fireball2.x = WIDTH*1.5//10
+            fireball3.x = WIDTH*2.5//10
+            fireball4.x = WIDTH*3.5//10
+            fireball5.x = WIDTH*4.5//10
+            fireball6.x = WIDTH*5.5//10
+            fireball7.x = WIDTH*6.5//10
+            fireball8.x = WIDTH*7.5//10
+            fireball9.x = WIDTH*8.5//10
+            fireball10.x = WIDTH*9.5//10
+        if fireball1.y >= Ground_Height - Fireball_Height:
+            if Boss_Attack2_Part1:
+                fireball1.y = 0
+                fireball2.y = 0
+                fireball3.y = 0
+                fireball4.y = 0
+                fireball5.y = 0
+                fireball6.y = 0
+                fireball7.y = 0
+                fireball8.y = 0
+                fireball9.y = 0
+                fireball10.y = 0
+            else:
+                final_boss.y += 20 ## This is just to adjust for the difference between the size of the sprite and the disappearing sprite
+                pygame.event.post(pygame.event.Event(Change_Boss_Disappearing))
+                pygame.event.post(pygame.event.Event(Change_Boss_Attack2))
+                pygame.event.post(pygame.event.Event(Change_Boss_Attack3))
+                pygame.event.post(pygame.event.Event(Reset_Final_Boss_Frame_Counter))
+            pygame.event.post(pygame.event.Event(Change_Boss_Attack2_Part1))
+        else:
+            fireball1.y += Fireball_Falling_Vel
+            fireball2.y += Fireball_Falling_Vel
+            fireball3.y += Fireball_Falling_Vel
+            fireball4.y += Fireball_Falling_Vel
+            fireball5.y += Fireball_Falling_Vel
+            fireball6.y += Fireball_Falling_Vel
+            fireball7.y += Fireball_Falling_Vel
+            fireball8.y += Fireball_Falling_Vel
+            fireball9.y += Fireball_Falling_Vel
+            fireball10.y += Fireball_Falling_Vel
+    if Boss_Attack3 and not Boss_Disappearing:
+        if final_boss.y > 0 and Boss_Attack3_Part1:
+            final_boss.y -= Boss_Flying_Vel
+        elif Boss_Attack3_Part1:
+            final_boss.y = Ground_Height - Boss_Height + 20
+            flying_final_boss.y = final_boss.y
+            pygame.event.post(pygame.event.Event(Change_Boss_Attack3_Part1))
+            if character.x >= WIDTH//2:
+                pygame.event.post(pygame.event.Event(Boss_Face_Right))
+                final_boss.x = 10
+                flying_final_boss.x = 0
+            else:
+                pygame.event.post(pygame.event.Event(Boss_Face_Left))
+                final_boss.x = WIDTH - Boss_Width + 10
+                flying_final_boss.x = WIDTH - Boss_Width
+        if not Boss_Attack3_Part1:
+            if Boss_Facing_Left and final_boss.x > 0 + 10:
+                final_boss.x -= Boss_Flying_Vel
+                flying_final_boss.x -= Boss_Flying_Vel
+            elif Boss_Facing_Left:
+                pygame.event.post(pygame.event.Event(Reset_Final_Boss_Frame_Counter))
+                pygame.event.post(pygame.event.Event(Change_Boss_Disappearing))
+                pygame.event.post(pygame.event.Event(Change_Boss_Attack3))
+                pygame.event.post(pygame.event.Event(Change_Boss_Attack1))
+                pygame.event.post(pygame.event.Event(Change_Boss_Attack3_Part1))
+            elif not Boss_Facing_Left and final_boss.x < WIDTH - Boss_Width + 10:
+                final_boss.x += Boss_Flying_Vel
+                flying_final_boss.x += Boss_Flying_Vel
+            else:
+                pygame.event.post(pygame.event.Event(Reset_Final_Boss_Frame_Counter))
+                pygame.event.post(pygame.event.Event(Change_Boss_Disappearing))
+                pygame.event.post(pygame.event.Event(Change_Boss_Attack3))
+                pygame.event.post(pygame.event.Event(Change_Boss_Attack1))
+                pygame.event.post(pygame.event.Event(Change_Boss_Attack3_Part1))
+    pygame.event.post(pygame.event.Event(Increase_Final_Boss_Frame_Counter))
+
+def main(level, protagonist_health):
+    run = True
+    clock = pygame.time.Clock()
+    rising = False ## Bool to tell the code if the player character is in the act of rising in a jump
+    grounded = True ## Bool to tell the code if the player character is on the ground
+    Protagonist_Pic = Protagonist_image ## Alias of the protagonist_sprite to pass to helper functions
+    Protagonist_Facing_Right = True ## Bool to determine if the protagonist is facing right
+    swing = False ## Bool to determine if the character is swinging the sword
+    Sword_pic = Sword_image ## Just an alias for the image of the sword, that will be passed through different helper functions
+    Previous_Ground_Level = Ground_Height ## Tracks the most recent ground level the player touched
+    frame_counter = Sword_Frame_Counter ## Amount of between sword swings
+    dog_health = Base_Dog_Health
+    Dog_pic = Idle_Dog_image
+    ghost1_health = Base_Ghost_Health
+    Ghost1_Moving_Down = True ## Bool to represent if the ghost is moving down or up
+    Ghost2_Moving_Down = True
+    ghost2_health = Base_Ghost_Health
+    Ghost1_Pic = Ghost_image
+    Ghost2_Pic = pygame.transform.flip(Ghost_image, True, False)
+    Ghost1_Moving_Left = True
+    Ghost2_Moving_Left = False
+    ghost_frame_counter = 0
+    holding_space = False ## Bool to show if the character is holding space
+    phase1_completed = False ## Bool to determine if both ghosts have been defeated
+    phase2_completed = False ## Bool to determine of all the slimes have been defeated
+    Slime1_Pic = Slime_image ## Pictures of the slime that can be passed to helper functions and can change direction based on which way the slime faces
+    Slime2_Pic = Slime_image
+    Slime3_Pic = Slime_image
+    Slime4_Pic = Slime_image
+    Slime1_Facing_Right = False ## Bool to tell the code which direction the slime is facing
+    Slime2_Facing_Right = False
+    Slime3_Facing_Right = False
+    Slime4_Facing_Right = False
+    minotaur_health = Base_Minotaur_Health
+    minotaur_attack_frame_counter = Minotaur_Attack_Frames // 2 ## Counts the frames and checks if it is time for the minotaur to attack. The minotaur will start at the halfway point on the counter
+    minotaur_attacking = False
+    Minotaur_Pic = Minotaur_image
+    Minotaur_Facing_Left = True
+    holding_shift = False
+    phase3_completed = False
+    phase4_completed = False
+    arrow_sign = pygame.Rect(950, 0, Arrow_Sign_Width, Arrow_Sign_Height)
+    heart_collected = False
+    Rock_Ledge3_Moving_Right = True
+    Rock_Ledge6_Moving_Right = True
+    slime1_health = Slime_Base_Health
+    slime2_health = Slime_Base_Health
+    slime3_health = Slime_Base_Health
+    slime4_health = Slime_Base_Health
+    bird_facing_left = Bird_Facing_Left ## Alias of original bird direction
+    Bird_pic = Bird_image ## Alias for the image of the bird
+    projectile_count = Base_Projectile_Count ## Counts the number of bombs on screen. If 0, the bird throws a new bomb
+    character_invincibility_frames_counter = 0
+    Current_Ground_Level = Ground_Height
+    enemy_invincibility_frames_counter = 0 ## Counter to check how many frames its been since an enemy has been damaged
+    Boss_Facing_Left = True
+    Boss_Pic = Boss_Idle_image
+    boss_health = Base_Final_Boss_Health
+    Boss_Attack1 = True
+    Boss_Attack2 = False
+    Boss_Attack3 = False
+    Boss_Disappearing = False
+    fireball1 = pygame.Rect(0, 0, Fireball_Width, Fireball_Height)
+    fireball2 = pygame.Rect(0, 0, Fireball_Width, Fireball_Height)
+    fireball3 = pygame.Rect(0, 0, Fireball_Width, Fireball_Height)
+    fireball4 = pygame.Rect(0, 0, Fireball_Width, Fireball_Height)
+    fireball5 = pygame.Rect(0, 0, Fireball_Width, Fireball_Height)
+    fireball6 = pygame.Rect(0, 0, Fireball_Width, Fireball_Height)
+    fireball7 = pygame.Rect(0, 0, Fireball_Width, Fireball_Height)
+    fireball8 = pygame.Rect(0, 0, Fireball_Width, Fireball_Height)
+    fireball9 = pygame.Rect(0, 0, Fireball_Width, Fireball_Height)
+    fireball10 = pygame.Rect(0, 0, Fireball_Width, Fireball_Height)
+    Fireball_Pic = Fireball_image
+    Boss_Attack2_Part1 = True
+    Boss_Attack3_Part1 = True
+    final_boss_frame_counter = 0
+    Damage_Sound.set_volume(0.4)
+    if level == 1:
+        Level1_Track.set_volume(0.3)
+        Level1_Track.play()
+        character = pygame.Rect(X_Position+10, Y_Position, Protagonist_Width-20, Protagonist_Height) ## Rectangle to represent the protagonist
+        sword = pygame.Rect(X_Position + Protagonist_Width - 9, Y_Position, Sword_Width, Sword_Height) ## rectangle to represent the sword
+        slime1 = pygame.Rect(600, Y_Position + 8, Slime_Width, Slime_Height) ## Rectangle to represent slime enemies, 8 is added here to make sure the slime touches the grass
+        slime2 = pygame.Rect(750, Y_Position + 8, Slime_Width, Slime_Height)
+        slime3 = pygame.Rect(800, Y_Position + 8, Slime_Width, Slime_Height)
+        slime4 = pygame.Rect(0, 0, Slime_Width, Slime_Height)
+        bird = pygame.Rect(WIDTH, 0, Bird_Width, Bird_Height) ## Rectangle to represent bird enemy
+        projectile = pygame.Rect(bird.x-5, bird.y, Projectile_Width+10, Projectile_Height) ## Rectangle to represent the bombs the bird throws
+        heart = pygame.Rect(Heart_X_Position, Heart_Y_Position, Heart_Width, Heart_Height)
+        rock_ledge3 = pygame.Rect(0, 0, Rock_Ledge_Width, Rock_Ledge_Height)
+        wall = pygame.Rect(0, 0, 10, 10)
+        rock_ledge6 = pygame.Rect(0, 0, Rock_Ledge_Width, Rock_Ledge_Height)
+        dog = pygame.Rect(0, 0, Dog_Width, Dog_Height)
+        ghost1 = pygame.Rect(0, 0, Ghost_Width, Ghost_Height)
+        ghost2 = pygame.Rect(0, 0, Ghost_Width, Ghost_Height)
+        minotaur = pygame.Rect(0, 0, Minotaur_Width, Minotaur_Height)
+        final_boss = pygame.Rect(0, 0, Boss_Width, Boss_Height)
+        flying_final_boss = pygame.Rect(0, 0, Boss_Width, Boss_Height)
+    elif level == 2:
+        Level2_Track.set_volume(1)
+        Level2_Track.play()
+        character = pygame.Rect(0+10, Y_Position, Protagonist_Width-20, Protagonist_Height) ## Character and sword start at far left of screen
+        sword = pygame.Rect(Protagonist_Width - 9, Y_Position, Sword_Width, Sword_Height) 
+        slime1 = pygame.Rect(0, 0, Slime_Width, Slime_Height) ## Slimes are not in level 2, so theyre coordinates are set to 0
+        slime2 = pygame.Rect(0, 0, Slime_Width, Slime_Height)
+        slime3 = pygame.Rect(0, 0, Slime_Width, Slime_Height)
+        slime4 = pygame.Rect(0, 0, Slime_Width, Slime_Height)
+        bird = pygame.Rect(0, 0, Bird_Width, Bird_Height) ## Bird coordinates set to 0
+        projectile = pygame.Rect(0, 0, Projectile_Width, Projectile_Height) ## Bomb coordinates set to 0
+        heart = pygame.Rect(0, 0, Heart_Width, Heart_Height) ## heart coordinates set to 0
+        rock_ledge3 = pygame.Rect(Rock_Ledge3_X_Position, Rock_Ledge3_Y_Position, Rock_Ledge_Width, Rock_Ledge_Height)
+        wall = pygame.Rect(Wall_X_Position, Wall_Y_Position, Wall_Width, Wall_Height)
+        rock_ledge6 = pygame.Rect(Rock_Ledge6_X_Position, Rock_Ledge6_Y_Position, Rock_Ledge_Width, Rock_Ledge_Height)
+        dog = pygame.Rect(Dog_X_Position, Dog_Y_Position, Dog_Width, Dog_Height)
+        ghost1 = pygame.Rect(0, 0, Ghost_Width, Ghost_Height)
+        ghost2 = pygame.Rect(0, 0, Ghost_Width, Ghost_Height)
+        minotaur = pygame.Rect(0, 0, Minotaur_Width, Minotaur_Height)
+        final_boss = pygame.Rect(0, 0, Boss_Width, Boss_Height)
+        flying_final_boss = pygame.Rect(0, 0, Boss_Width, Boss_Height)
+    elif level == 3:
+        Level3_Track.play()
+        character = pygame.Rect((WIDTH - Protagonist_Width)//2+10, 0, Protagonist_Width-20, Protagonist_Height) ## Want the character to be at the top of the screen in the direct middle when he falls down
+        sword = pygame.Rect((WIDTH + Protagonist_Width)//2 - 9, 0, Sword_Width, Sword_Height) 
+        slime1 = pygame.Rect(0, 0, Slime_Width, Slime_Height) ## Slimes are not in level 2, so theyre coordinates are set to 0
+        slime2 = pygame.Rect(200, 0, Slime_Width, Slime_Height)
+        slime3 = pygame.Rect(800, 0, Slime_Width, Slime_Height)
+        slime4 = pygame.Rect(WIDTH-Slime_Width, 0, Slime_Width, Slime_Height)
+        bird = pygame.Rect(0, 0, Bird_Width, Bird_Height) ## Bird coordinates set to 0
+        projectile = pygame.Rect(0, 0, Projectile_Width, Projectile_Height) ## Bomb coordinates set to 0
+        heart = pygame.Rect(0, 0, Heart_Width, Heart_Height) ## heart coordinates set to 0
+        rock_ledge3 = pygame.Rect(0, 0, Rock_Ledge_Width, Rock_Ledge_Height)
+        wall = pygame.Rect(0, 0, 10, 10)
+        rock_ledge6 = pygame.Rect(0, 0, Rock_Ledge_Width, Rock_Ledge_Height)
+        dog = pygame.Rect(0, 0, Dog_Width, Dog_Height)
+        ghost1 = pygame.Rect(Ghost1_X_Position, Ghost1_Y_Position, Ghost_Width, Ghost_Height)
+        ghost2 = pygame.Rect(Ghost2_X_Position, Ghost2_Y_Position, Ghost_Width, Ghost_Height)
+        minotaur = pygame.Rect(Minotaur_X_Position, Minotaur_Y_Position + 15, Minotaur_Width, Minotaur_Height - 30) ## The height of the minotaur has been reduced to decrease his hitbox
+        Slime1_Facing_Right = True
+        Slime2_Facing_Right = True
+        Slime1_Pic = pygame.transform.flip(Slime_image, True, False) ## Overwriting the pictures of the slime that were defined in level 1
+        Slime2_Pic = pygame.transform.flip(Slime_image, True, False)
+        Slime3_Pic = Slime_image
+        final_boss = pygame.Rect(0, 0, Boss_Width, Boss_Height)
+        flying_final_boss = pygame.Rect(0, 0, Boss_Width, Boss_Height)
+    elif level == 4:
+        Level4_Track.set_volume(0.2)
+        Level4_Track.play()
+        character = pygame.Rect(0+10, Y_Position, Protagonist_Width-20, Protagonist_Height) ## Character and sword start at far left of screen
+        sword = pygame.Rect(Protagonist_Width - 9, Y_Position, Sword_Width, Sword_Height) 
+        slime1 = pygame.Rect(0, 0, Slime_Width, Slime_Height) ## Slimes are not in level 2, so theyre coordinates are set to 0 
+        slime2 = pygame.Rect(0, 0, Slime_Width, Slime_Height)
+        slime3 = pygame.Rect(0, 0, Slime_Width, Slime_Height)
+        slime4 = pygame.Rect(0, 0, Slime_Width, Slime_Height)
+        bird = pygame.Rect(0, 0, Bird_Width, Bird_Height) ## Bird coordinates set to 0
+        projectile = pygame.Rect(0, 0, Projectile_Width, Projectile_Height) ## Bomb coordinates set to 0
+        heart = pygame.Rect(0, 0, Heart_Width, Heart_Height) ## heart coordinates set to 0
+        rock_ledge3 = pygame.Rect(0, 0, Rock_Ledge_Width, Rock_Ledge_Height)
+        wall = pygame.Rect(0, 0, 10, 10)
+        rock_ledge6 = pygame.Rect(0, 0, Rock_Ledge_Width, Rock_Ledge_Height)
+        dog = pygame.Rect(0, 0, Dog_Width, Dog_Height)
+        ghost1 = pygame.Rect(0, 0, Ghost_Width, Ghost_Height)
+        ghost2 = pygame.Rect(0, 0, Ghost_Width, Ghost_Height)
+        minotaur = pygame.Rect(0, 0, Minotaur_Width, Minotaur_Height)
+        final_boss = pygame.Rect(Boss_X_Position + 10, Boss_Y_Position+20, Boss_Width - 20, Boss_Height-20)
+        flying_final_boss = pygame.Rect(0, 0, Boss_Width, Boss_Height-20)
+    while run:
+        clock.tick(60)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == Rising_True:
+                rising = True
+            if event.type == Rising_False:
+                rising = False
+            if event.type == Grounded_True:
+                grounded = True
+            if event.type == Grounded_False:
+                grounded = False
+            if event.type == Sword_Swing_Down:
+                if Protagonist_Facing_Right:
+                    Sword_pic = pygame.transform.rotate(Sword_pic, -45)
+                else:
+                    sword.x -= 10
+                    Sword_pic = pygame.transform.rotate(Sword_pic, 45)
+            if event.type == Sword_Swing_Up:
+                if Protagonist_Facing_Right:
+                    Sword_pic = Sword_image
+                else:
+                    sword.x += 10
+                    Sword_pic = pygame.transform.flip(Sword_image, True, False)
+            if event.type == Swing_True:
+                swing = True
+            if event.type == Swing_False:
+                swing = False
+            if event.type == Slime1_Lose_Health:
+                Damage_Sound.play()
+                slime1_health -= 1
+            if event.type == Slime2_Lose_Health:
+                Damage_Sound.play()
+                slime2_health -= 1
+            if event.type == Slime3_Lose_Health:
+                Damage_Sound.play()
+                slime3_health -= 1
+            if event.type == Protagonist_Lose_Health:
+                Damage_Sound.play()
+                protagonist_health -= 1
+            if event.type == Switch_Bird_Direction:
+                bird_facing_left = not bird_facing_left
+                Bird_pic = pygame.transform.flip(Bird_pic, True, False)
+            if event.type == Change_Projectile_Count:
+                if projectile_count == 1:
+                    projectile_count = 0
+                else:
+                    projectile_count = 1
+            if event.type == Protagonist_Change_Direction:
+                if Protagonist_Facing_Right == True:
+                    Protagonist_Facing_Right = False
+                    sword.x -= Protagonist_Width + 1
+                else:
+                    Protagonist_Facing_Right = True
+                    sword.x += Protagonist_Width + 1
+                Protagonist_Pic = pygame.transform.flip(Protagonist_Pic, True, False)
+                Sword_pic = pygame.transform.flip(Sword_pic, True, False)
+            if event.type == Update_Previous_Ground_Level:
+                Previous_Ground_Level = Current_Ground_Level
+            if event.type == Collect_Heart:
+                Heal_Sound.play()
+                protagonist_health += 1
+                heart_collected = True
+                heart.x = 0
+                heart.y = 0
+            if event.type == Rock_Ledge3_Change_Direction:
+                Rock_Ledge3_Moving_Right = not Rock_Ledge3_Moving_Right
+            if event.type == Reset_Frame_Counter:
+                frame_counter = 0
+            if event.type == Increase_Frame_Counter:
+                frame_counter += 1
+            if event.type == Rock_Ledge6_Change_Direction:
+                Rock_Ledge6_Moving_Right = not Rock_Ledge6_Moving_Right
+            if event.type == Dog_Lose_Health:
+                Damage_Sound.play()
+                dog_health -= 1
+            if event.type == Dog_Moving_Left:
+                Dog_pic = pygame.transform.flip(Walking_Dog_image, True, False)
+            if event.type == Dog_Idle:
+                Dog_pic = Idle_Dog_image
+            if event.type == Ghost1_Lose_Health:
+                Damage_Sound.play()
+                ghost1_health -= 1
+            if event.type == Ghost1_Change_Vertical_Direction:
+                Ghost1_Moving_Down = not Ghost1_Moving_Down
+            if event.type == Ghost2_Lose_Health:
+                Damage_Sound.play()
+                ghost2_health -= 1
+            if event.type == Ghost2_Change_Vertical_Direction:
+                Ghost2_Moving_Down = not Ghost2_Moving_Down
+            if event.type == Ghost1_Change_Horizontal_Direction:
+                Ghost1_Moving_Left = not Ghost1_Moving_Left
+                Ghost1_Pic = pygame.transform.flip (Ghost1_Pic, True, False)
+            if event.type == Ghost2_Change_Horizontal_Direction:
+                Ghost2_Moving_Left = not Ghost2_Moving_Left
+                Ghost2_Pic = pygame.transform.flip(Ghost2_Pic, True, False)
+            if event.type == Update_Ghost_Frame_Counter:
+                ghost_frame_counter += 1
+            if event.type == Reset_Ghost_Frame_Counter:
+                ghost_frame_counter = 0
+            if event.type == Holding_Space_Change:
+                holding_space = not holding_space
+            if event.type == Change_Slime1_Direction:
+                Slime1_Pic = pygame.transform.flip(Slime1_Pic, True, False)
+                Slime1_Facing_Right = not Slime1_Facing_Right
+            if event.type == Change_Slime2_Direction:
+                Slime2_Pic = pygame.transform.flip(Slime2_Pic, True, False)
+                Slime2_Facing_Right = not Slime2_Facing_Right
+            if event.type == Change_Slime3_Direction:
+                Slime3_Pic = pygame.transform.flip(Slime3_Pic, True, False)
+                Slime3_Facing_Right = not Slime3_Facing_Right
+            if event.type == Change_Slime4_Direction:
+                Slime4_Pic = pygame.transform.flip(Slime4_Pic, True, False)
+                Slime4_Facing_Right = not Slime4_Facing_Right
+            if event.type == Slime4_Lose_Health:
+                Damage_Sound.play()
+                slime4_health -= 1
+            if event.type == Increase_Minotaur_Attack_Frame_Counter:
+                minotaur_attack_frame_counter += 1
+            if event.type == Update_Minotaur_Attacking:
+                minotaur_attacking = not minotaur_attacking
+                minotaur_attack_frame_counter = 0
+            if event.type == Update_Minotaur_Pic:
+                if Minotaur_Facing_Left:
+                    if minotaur_attacking and minotaur_attack_frame_counter <= 1:
+                        minotaur.x -= 40
+                    if minotaur_attacking:
+                        Minotaur_Pic = Minotaur_Attacking_image
+                    else:
+                        Minotaur_Pic = Minotaur_image
+                    if not minotaur_attacking and minotaur_attack_frame_counter <= 1:
+                        minotaur.x += 40
+                else:
+                    if minotaur_attacking and minotaur_attack_frame_counter <= 1:
+                        minotaur.x += 40
+                    if minotaur_attacking:
+                        Minotaur_Pic = pygame.transform.flip(Minotaur_Attacking_image, True, False)
+                    else:
+                        Minotaur_Pic = pygame.transform.flip(Minotaur_image, True, False)
+                    if not minotaur_attacking and minotaur_attack_frame_counter <= 1:
+                        minotaur.x -= 40
+            if event.type == Minotaur_Moving_Left:
+                Minotaur_Pic = Minotaur_image
+                Minotaur_Facing_Left = True
+            if event.type == Minotaur_Moving_Right:
+                Minotaur_Pic = pygame.transform.flip(Minotaur_image, True, False)
+                Minotaur_Facing_Left = False
+            if event.type == Minotaur_Lose_Health:
+                Damage_Sound.play()
+                minotaur_health -= 1
+            if event.type == Player_Holding_Shift:
+                holding_shift = True
+            if event.type == Player_Not_Holding_Shift:
+                holding_shift = False
+            if event.type == Reset_Invincibility_Frames_Counter:
+                character_invincibility_frames_counter = 0
+            if event.type == Increase_Invincibility_Frames_Counter:
+                character_invincibility_frames_counter += 1
+            if event.type == Update_Enemy_Invincibility_Frames_Counter:
+                enemy_invincibility_frames_counter += 1
+            if event.type == Reset_Enemy_Invincibility_Frames_Counter:
+                enemy_invincibility_frames_counter = 0
+            if event.type == Boss_Face_Left:
+                if Boss_Attack1:
+                    Boss_Pic = Boss_Idle_image
+                    Fireball_Pic = pygame.transform.flip(Fireball_image, True, False)
+                    Boss_Facing_Left = True
+                if Boss_Attack3:
+                    Boss_Pic = pygame.transform.flip(Boss_Flying_Sideways_image, True, False)
+                    Boss_Facing_Left = True
+            if event.type == Boss_Face_Right:
+                if Boss_Attack1:
+                    Boss_Pic = pygame.transform.flip(Boss_Idle_image, True, False)
+                    Fireball_Pic = Fireball_image
+                    Boss_Facing_Left = False
+                if Boss_Attack3:
+                    Boss_Pic = Boss_Flying_Sideways_image
+                    Boss_Facing_Left = False
+            if event.type == Boss_Lose_Health:
+                Damage_Sound.play()
+                boss_health -= 1
+            if event.type == Increase_Final_Boss_Frame_Counter:
+                final_boss_frame_counter += 1
+            if event.type == Reset_Final_Boss_Frame_Counter:
+                final_boss_frame_counter = 0
+            if event.type == Change_Boss_Disappearing:
+                Boss_Disappearing = not Boss_Disappearing
+                if Boss_Attack2 and Boss_Disappearing:
+                    Boss_Pic = pygame.transform.flip(Boss_Disappearing_image, True, False)
+                elif Boss_Disappearing and Boss_Facing_Left:
+                    Boss_Pic = Boss_Disappearing_image
+                elif Boss_Disappearing and not Boss_Facing_Left:
+                    Boss_Pic = pygame.transform.flip(Boss_Disappearing_image, True, False)
+            if event.type == Change_Boss_Attack1:
+                Boss_Attack1 = not Boss_Attack1
+            if event.type == Change_Boss_Attack2:
+                Boss_Attack2 = not Boss_Attack2
+            if event.type == Update_Boss_Attack_Picture:
+                if Boss_Attack2:
+                    Boss_Pic = Boss_Attack2_image
+                    Fireball_Pic = pygame.transform.rotate(Fireball_image, 270)
+                if Boss_Attack3 and Boss_Attack3_Part1:
+                    Boss_Pic = Boss_Flying_Up_image
+            if event.type == Change_Boss_Attack2_Part1:
+                Boss_Attack2_Part1 = not Boss_Attack2_Part1
+            if event.type == Change_Boss_Attack3:
+                Boss_Attack3 = not Boss_Attack3
+            if event.type == Change_Boss_Attack3_Part1:
+                Boss_Attack3_Part1 = not Boss_Attack3_Part1
+        if level == 1 or level == 3:
+            if slime1_health <= 0: ## If the slime dies, the rectangle is moved away from the player
+                slime1.x = 0
+                slime1.y = 0
+            if slime2_health <= 0:
+                slime2.x = 0
+                slime2.y = 0
+            if slime3_health <= 0: 
+                slime3.x = 0
+                slime3.y = 0
+        if level == 1:
+            if character.x >= WIDTH - Protagonist_Width - 5 and character.y <= Grass_Ledge4_Y_Position - Protagonist_Height + Ground_Sprite_Adjustment: ## Checks if the character has reached the end of the screen
+                Level1_Track.stop()
+                pygame.time.delay(300)
+                main(2, protagonist_health)
+        if level == 2:
+            if dog_health <= 0:
+                dog.x = 0
+                dog.y = 500
+            if character.y >= HEIGHT - Protagonist_Height:
+                Level2_Track.stop()
+                main(3, protagonist_health)
+        if level == 3:
+            if ghost1_health <= 0:
+                ghost1.x = 0
+                ghost1.y = 0
+            if ghost2_health <= 0:
+                ghost2.x = 0
+                ghost2.y = 0
+            if slime4_health <= 0:
+                slime4.x = 0
+                slime4.y = 0
+            if ghost1_health <= 0 and ghost2_health <= 0:
+                phase1_completed = True
+            if slime1_health <= 0 and slime2_health <= 0 and slime3_health <= 0 and slime4_health <= 0:
+                phase2_completed = True
+            if minotaur_health <= 0:
+                if not phase3_completed:
+                    minotaur.x = 200
+                    minotaur.y = 0
+                    Minotaur_Pic = pygame.transform.flip(Minotaur_image, True, False)
+                    Minotaur_Facing_Left = False
+                    minotaur_health = Base_Minotaur_Health
+                    phase3_completed = True
+                elif phase3_completed:
+                    minotaur.x = 0
+                    minotaur.y = 0
+                    phase4_completed = True
+                if phase4_completed:
+                    if character.x - 10 >= WIDTH - Protagonist_Width - 5:
+                        Level3_Track.stop()
+                        pygame.time.delay(500)
+                        main(4, protagonist_health)
+        if level == 4:
+            if boss_health <= 0:
+                final_boss.x = 0
+                final_boss.y = 0
+        keys_pressed = pygame.key.get_pressed()
+        Current_Ground_Level = ground_level(character, sword, level, Protagonist_Facing_Right, rock_ledge3, Rock_Ledge3_Moving_Right, grounded, rock_ledge6, Rock_Ledge6_Moving_Right)
+        if level == 3:
+            ghost_movement(ghost1, Ghost1_Moving_Down, Ghost1_Moving_Left, ghost2, Ghost2_Moving_Down, Ghost2_Moving_Left)
+        if level == 4:
+            boss_movement(final_boss, character, sword, final_boss_frame_counter, character_invincibility_frames_counter, Protagonist_Facing_Right, Boss_Attack1, Boss_Disappearing, Boss_Attack2, fireball1, fireball2, fireball3, fireball4, fireball5, fireball6, fireball7, fireball8, fireball9, fireball10, Boss_Facing_Left, Boss_Attack2_Part1, Boss_Attack3, Boss_Attack3_Part1, flying_final_boss)
+        character_movement(keys_pressed, character, rising, grounded, sword, Protagonist_Facing_Right, Current_Ground_Level, Previous_Ground_Level, heart, wall, swing, holding_space)
+        enemy_movement(character, sword, slime1, slime2, slime3, slime4, bird, bird_facing_left, projectile, projectile_count, Protagonist_Facing_Right, heart, level, dog, dog_health, ghost1, Ghost1_Moving_Down, ghost2, Ghost2_Moving_Down, Ghost1_Moving_Left, Ghost2_Moving_Left, phase1_completed, Slime1_Facing_Right, Slime2_Facing_Right, Slime3_Facing_Right, Slime4_Facing_Right, minotaur, phase2_completed, minotaur_attack_frame_counter, minotaur_attacking, Minotaur_Facing_Left, arrow_sign, phase4_completed, character_invincibility_frames_counter)
+        swordmovement(keys_pressed, swing, sword, slime1, slime2, slime3, slime4, Protagonist_Facing_Right, level, frame_counter, dog, ghost1, ghost2, minotaur, holding_shift, enemy_invincibility_frames_counter, final_boss, Boss_Disappearing, flying_final_boss, Boss_Attack3_Part1)
+        draw_window(character, sword, Sword_pic, slime1, slime1_health, slime2, slime2_health, slime3, slime3_health, slime4, slime4_health, protagonist_health, bird, Bird_pic, projectile, Protagonist_Pic, heart, heart_collected, level, rock_ledge3, rock_ledge6, dog, Dog_pic, dog_health, ghost1, ghost1_health, ghost2, ghost2_health, Ghost1_Pic, Ghost2_Pic, ghost_frame_counter, phase1_completed, Slime1_Pic, Slime2_Pic, Slime3_Pic, Slime4_Pic, minotaur, phase2_completed, Minotaur_Pic, minotaur_health, arrow_sign, phase4_completed, final_boss, Boss_Pic, boss_health, fireball1, fireball2, fireball3, fireball4, fireball5, fireball6, fireball7, fireball8, fireball9, fireball10, Fireball_Pic, Boss_Disappearing, Boss_Attack2, Boss_Attack3)
+        if protagonist_health <= 0:
+            if level == 4:
+                Level4_Track.stop()
+            if level == 3:
+                Level3_Track.stop()
+            if level == 1:
+                Level1_Track.stop()
+            if level == 2:
+                Level2_Track.stop()
+            Game_Over_Sound.play()
+            game_over()
+            main(1, Base_Protagonist_Health)
+        if boss_health <= 0:
+            Level4_Track.stop()
+            Game_Win_Sound.play()
+            beat_game()
+            main(1, Base_Protagonist_Health)
+    pygame.quit()
+
+if __name__ == "__main__":
+    main(1, Base_Protagonist_Health)
